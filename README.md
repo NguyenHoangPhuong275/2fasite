@@ -1,55 +1,48 @@
 # 2fasite
 
-Ung dung web tao ma TOTP (2FA) chay tren trinh duyet.
+Ứng dụng web tạo mã TOTP (2FA) chạy trên trình duyệt.
 
-## Cau truc file
+## Cấu trúc file
 
-- `index.html`: giao dien va cac the tai tai nguyen.
-- `style.css`: toan bo CSS.
-- `script.js`: xu ly nhap chuoi 2FA, sinh ma TOTP, countdown, copy ma, dong bo thoi gian.
+- `index.html`: giao diện và các thẻ tải tài nguyên.
+- `style.css`: toàn bộ CSS.
+- `script.js`: xử lý nhập chuỗi 2FA, sinh mã TOTP, countdown, copy mã, đồng bộ thời gian.
 
-## Hanh vi hien tai
+## Hành vi hiện tại
 
-- Chap nhan 2 kieu input:
+- Chấp nhận 2 kiểu input:
   - `otpauth://...` URI.
-  - Secret Base32 (regex: `^[A-Z2-7]+=*$` sau khi bo khoang trang va upper-case).
-- Sinh ma TOTP voi cau hinh mac dinh khi nhap Base32 thuong:
+  - Secret Base32 (regex: `^[A-Z2-7]+=*$` sau khi bỏ khoảng trắng và upper-case).
+- Sinh mã TOTP với cấu hình mặc định khi nhập Base32 thường:
   - Algorithm: `SHA1`
   - Digits: `6`
   - Period: `30s`
-- Bam nut submit hoac nhan `Enter` de xu ly input.
-- Bam vao khu vuc ma de copy qua Clipboard API.
-- Co vong countdown + progress bar.
-- Co state canh bao:
-  - `state-warning` khi con <= `7s`
-  - `state-danger` khi con <= `3s`
+- Bấm nút submit hoặc nhấn `Enter` để xử lý input.
+- Bấm vào khu vực mã để copy qua Clipboard API.
+- Có vòng countdown + progress bar.
+- Có state cảnh báo:
+  - `state-warning` khi còn <= `7s`
+  - `state-danger` khi còn <= `3s`
 
-## Dong bo thoi gian
+## Đồng bộ thời gian
 
 Logic trong `script.js`:
 
-1. Thu goi `GET /api/time` (same-origin).
-2. Neu loi thi fallback sang `https://www.timeapi.io/api/Time/current/zone?timeZone=UTC`.
-3. Chu ky dong bo lai: `5` phut.
-4. Timeout moi lan goi: `3500ms`.
+1. Thử gọi `GET /api/time` (same-origin).
+2. Nếu lỗi thì fallback sang `https://www.timeapi.io/api/Time/current/zone?timeZone=UTC`.
+3. Chu kỳ đồng bộ lại: `5` phút.
+4. Timeout mỗi lần gọi: `3500ms`.
 
-`/api/time` duoc chap nhan neu tra ve JSON co mot trong cac truong:
+`/api/time` được chấp nhận nếu trả về JSON có một trong các trường:
 
 - `serverTime`
 - `now`
 - `timestamp`
 
-Gia tri phai parse duoc thanh so timestamp hop le.
+Giá trị phải parse được thành số timestamp hợp lệ.
 
-## Cach chay
+## Cách chạy
 
-1. Mo `index.html` bang trinh duyet.
-2. Nhap chuoi 2FA.
-3. Bam submit (hoac Enter) de hien ma.
-
-## Phu thuoc runtime
-
-- `otpauth` UMD tai tu CDN: `https://cdn.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js`
-- Google Fonts (Inter, JetBrains Mono).
-
-Neu khong tai duoc CDN thi ung dung khong sinh ma TOTP.
+1. Mở `index.html` bằng trình duyệt.
+2. Nhập chuỗi 2FA.
+3. Bấm submit (hoặc Enter) để hiện mã.
