@@ -417,7 +417,7 @@ body {
   font-size: 0.68rem;
   color: var(--slate-600);
   padding-bottom: 4px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.2em;
   opacity: 0;
   transition: opacity 0.3s;
 }
