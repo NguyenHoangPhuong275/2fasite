@@ -326,3 +326,25 @@ setInterval(() => {
 resetOtpState();
 void syncClock();
 startLoop();
+
+// Modal Logic
+const contactBtn = document.getElementById("contactBtn");
+const contactModal = document.getElementById("contactModal");
+const closeContactBtn = document.getElementById("closeContactBtn");
+
+if (contactBtn && contactModal && closeContactBtn) {
+  contactBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    contactModal.classList.add("active");
+  });
+
+  closeContactBtn.addEventListener("click", () => {
+    contactModal.classList.remove("active");
+  });
+
+  contactModal.addEventListener("click", (e) => {
+    if (e.target === contactModal) {
+      contactModal.classList.remove("active");
+    }
+  });
+}
