@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DoVie 2FA - Authenticator</title>
+  <meta name="description" content="DoVie 2FA - Trinh tao ma xac thuc TOTP real-time" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="./style.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js"></script>
+  <script defer src="./script.js"></script>
+</head>
+<body>
+  <div class="bg-layer"></div>
+  <div class="noise"></div>
+  <div class="app-wrap">
+    <div class="card-outer">
+      <div class="card-inner">
+        <header class="header">
+          <div class="logo-area">
+            <div class="logo-icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                <circle cx="12" cy="16" r="1" />
+              </svg>
+            </div>
+            <div class="app-title">DoVie 2FA</div>
+          </div>
+          <div class="badge-live">
+            <span class="badge-dot"></span>
+            Live
+          </div>
+        </header>
+        <div class="input-section">
+          <div class="input-row">
+            <input
+              id="rawInput"
+              class="secret-input"
+              type="text"
+              placeholder="Nhập chuỗi 2FA...."
+              autocomplete="off"
+              spellcheck="false" />
+            <button id="submitBtn" class="submit-btn" type="button" title="Xac nhan">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div id="otpSection" class="otp-section">
+          <div id="otpContainer" class="otp-container" title="Click de copy">
+            <div id="otpDigits" class="otp-digits">
+              <div class="otp-digit">-</div>
+              <div class="otp-digit">-</div>
+              <div class="otp-digit">-</div>
+              <div class="otp-digit-sep"></div>
+              <div class="otp-digit">-</div>
+              <div class="otp-digit">-</div>
+              <div class="otp-digit">-</div>
+            </div>
+            <div id="copyToast" class="copy-toast">Da copy!</div>
+          </div>
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 52 52" aria-hidden="true">
+              <defs>
+                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="var(--emerald-400)" />
+                  <stop offset="50%" stop-color="var(--cyan-400)" />
+                  <stop offset="100%" stop-color="var(--sky-400)" />
+                </linearGradient>
+              </defs>
+              <circle class="ring-bg" cx="26" cy="26" r="22" />
+              <circle id="ringFg" class="ring-fg" cx="26" cy="26" r="22" stroke-dasharray="138.23" stroke-dashoffset="0" />
+            </svg>
+            <div id="ringText" class="ring-text">--</div>
+          </div>
+        </div>
+        <div id="copyHint" class="copy-hint">Bấm vào mã để copy</div>
+        <div class="progress-track">
+          <div id="progressBar" class="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
