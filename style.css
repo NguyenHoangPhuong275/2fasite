@@ -796,7 +796,7 @@ body {
     height: 28px;
   }
   .site-nav {
-    display: none;
+    display: flex;
   }
 
   .app-wrap {
