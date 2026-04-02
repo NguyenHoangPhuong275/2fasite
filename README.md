@@ -1,48 +1,38 @@
 # 2fasite
 
-Ứng dụng web tạo mã TOTP (2FA) chạy trên trình duyệt.
+Ứng dụng web tạo mã TOTP (2FA) và đọc mail Outlook phục vụ lấy mã xác thực.
 
-## Cấu trúc file
+## Cấu trúc chính
 
-- `index.html`: giao diện và các thẻ tải tài nguyên.
-- `style.css`: toàn bộ CSS.
-- `script.js`: xử lý nhập chuỗi 2FA, sinh mã TOTP, countdown, copy mã, đồng bộ thời gian.
+- `index.html`: giao diện chính.
+- `src/css/style.css`: toàn bộ CSS.
+- `src/js/script.js`: bootstrap app.
+- `src/js/otp/*`: logic tạo mã TOTP, đồng bộ thời gian, render UI 2FA.
+- `src/js/ui/contact-modal.js`: modal liên hệ.
+- `src/js/ui/outlook-modal.js`: luồng đọc mail Outlook.
+- `api/token.js`: serverless endpoint đổi `refresh_token` sang `access_token`.
 
-## Hành vi hiện tại
+## Luồng 2FA
 
-- Chấp nhận 2 kiểu input:
-  - `otpauth://...` URI.
-  - Secret Base32 (regex: `^[A-Z2-7]+=*$` sau khi bỏ khoảng trắng và upper-case).
-- Sinh mã TOTP với cấu hình mặc định khi nhập Base32 thường:
-  - Algorithm: `SHA1`
-  - Digits: `6`
-  - Period: `30s`
-- Bấm nút submit hoặc nhấn `Enter` để xử lý input.
-- Bấm vào khu vực mã để copy qua Clipboard API.
-- Có vòng countdown + progress bar.
-- Có state cảnh báo:
-  - `state-warning` khi còn <= `7s`
-  - `state-danger` khi còn <= `3s`
+- Hỗ trợ input `otpauth://...` hoặc secret Base32.
+- Tạo mã TOTP mặc định `SHA1`, `6 digits`, `30s` khi nhập Base32 thường.
+- Có countdown + progress bar và copy mã bằng Clipboard API.
+- Đồng bộ thời gian qua `/api/time`, fallback `timeapi.io`.
 
-## Đồng bộ thời gian
+## Luồng Outlook
 
-Logic trong `script.js`:
+- Nhập dữ liệu theo dạng ưu tiên:
+  - `email|password|refresh_token|device_id`
+  - hoặc `email|refresh_token|device_id`
+  - hoặc `refresh_token|device_id`
+- App gọi `/api/token` để lấy access token.
+- App đọc danh sách thư từ Outlook API, fallback sang Microsoft Graph API.
+- Click từng dòng thư để mở chi tiết trong modal.
 
-1. Thử gọi `GET /api/time` (same-origin).
-2. Nếu lỗi thì fallback sang `https://www.timeapi.io/api/Time/current/zone?timeZone=UTC`.
-3. Chu kỳ đồng bộ lại: `5` phút.
-4. Timeout mỗi lần gọi: `3500ms`.
+## Chạy local
 
-`/api/time` được chấp nhận nếu trả về JSON có một trong các trường:
+```bash
+npx vercel dev
+```
 
-- `serverTime`
-- `now`
-- `timestamp`
-
-Giá trị phải parse được thành số timestamp hợp lệ.
-
-## Cách chạy
-
-1. Mở `index.html` bằng trình duyệt.
-2. Nhập chuỗi 2FA.
-3. Bấm submit (hoặc Enter) để hiện mã.
+Mở địa chỉ local do Vercel CLI cung cấp.
