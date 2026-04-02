@@ -538,7 +538,7 @@ export function initOutlookModal() {
 
     const parsed = parsePastedCredentialPayload(payloadInput.value);
     if (!parsed.refreshToken) {
-      const message = "Kh\u00f4ng detect \u0111\u01b0\u1ee3c refresh token t\u1eeb d\u1eef li\u1ec7u \u0111\u00e3 paste.";
+      const message = "Không tìm thấy dữ liệu.";
       setStatus(message, true);
       setListNotice(message, true);
       return;
