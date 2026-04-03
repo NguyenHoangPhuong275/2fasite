@@ -604,10 +604,6 @@ export function initOutlookModal() {
       mailBtn.classList.remove("active");
       view2fa.style.display = "";
       viewOutlook.style.display = "none";
-      payloadInput.value = "";
-      clearList();
-      state.detailCache.clear();
-      state.accessToken = "";
     });
 
     mailBtn.addEventListener("click", (event) => {
