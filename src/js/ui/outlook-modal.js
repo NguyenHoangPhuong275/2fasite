@@ -1,4 +1,4 @@
-﻿const TOKEN_ENDPOINT = "/api/token";
+const TOKEN_ENDPOINT = "/api/token";
 const OUTLOOK_MESSAGES_ENDPOINT = "https://outlook.office.com/api/v2.0/me/messages";
 const GRAPH_MESSAGES_ENDPOINT = "https://graph.microsoft.com/v1.0/me/messages";
 const REQUEST_TIMEOUT_MS = 15000;
@@ -578,6 +578,7 @@ export function initOutlookModal() {
       }
 
       state.detailCache.clear();
+      clearList();
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < messages.length; i += 1) {
         fragment.appendChild(buildMessageItem(messages[i], i + 1, parsed.email, state, handleExpandMessage));
@@ -603,6 +604,10 @@ export function initOutlookModal() {
       mailBtn.classList.remove("active");
       view2fa.style.display = "";
       viewOutlook.style.display = "none";
+      payloadInput.value = "";
+      clearList();
+      state.detailCache.clear();
+      state.accessToken = "";
     });
 
     mailBtn.addEventListener("click", (event) => {

@@ -49,15 +49,24 @@ export function initOtpApp() {
     view.setOtpStateClass(remainSec);
   }
 
+  function sanitizeInput(value) {
+    const trimmed = value.trim();
+    if (/^otpauth:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+    return trimmed.replace(/[^A-Za-z0-9=]/g, "");
+  }
+
   async function onInputSubmit() {
-    const raw = dom.rawInput.value.trim();
-    if (!raw) {
+    const sanitized = sanitizeInput(dom.rawInput.value);
+    dom.rawInput.value = sanitized;
+    if (!sanitized) {
       resetOtpState();
       return;
     }
 
     try {
-      currentTotp = parseInputToTotp(raw);
+      currentTotp = parseInputToTotp(sanitized);
       lastStep = -1;
       await clockSync.ensureFresh();
       analyzeNow(true);
@@ -115,6 +124,13 @@ export function initOtpApp() {
 
     event.preventDefault();
     void onInputSubmit();
+  });
+
+  dom.rawInput.addEventListener("paste", (event) => {
+    event.preventDefault();
+    const pasted = (event.clipboardData || window.clipboardData).getData("text");
+    const sanitized = sanitizeInput(pasted);
+    dom.rawInput.value = sanitized;
   });
 
   dom.otpContainer.addEventListener("click", () => {
