@@ -548,23 +548,10 @@ export function initOutlookModal() {
     loadMailBtn.disabled = true;
     loadMailBtn.textContent = "\u0110ang \u0111\u1ecdc...";
     setListNotice("\u0110ang \u0111\u1ecdc th\u01b0...");
+    setStatus("");
 
     try {
-      const meta = [];
-      if (parsed.email) {
-        meta.push(`mail: ${parsed.email}`);
-      }
-      if (parsed.deviceId) {
-        meta.push(`device_id: ${parsed.deviceId}`);
-      }
-      if (parsed.password) {
-        meta.push("password: provided");
-      }
-
-      setStatus(meta.length ? `\u0110ang l\u1ea5y access token (${meta.join(", ")})...` : "\u0110ang l\u1ea5y access token...");
-
       state.accessToken = await getAccessToken(parsed.clientId || parsed.deviceId || "", parsed.refreshToken);
-      setStatus("\u0110ang t\u1ea3i danh s\u00e1ch th\u01b0...");
 
       const { endpoint, payload } = await fetchMessagesWithFallback(state.accessToken);
       state.messagesEndpoint = endpoint;
@@ -631,4 +618,3 @@ export function initOutlookModal() {
     void loadMessages();
   });
 }
-

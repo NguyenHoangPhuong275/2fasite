@@ -1,6 +1,3 @@
-// Vercel Serverless Function - proxy token refresh to Microsoft Entra
-// Browser calls same-origin /api/token, this function calls Microsoft server-side.
-
 const MS_TOKEN_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 
 export default async function handler(req, res) {
