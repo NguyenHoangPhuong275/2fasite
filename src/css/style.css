@@ -92,12 +92,12 @@ body.full-view-mode {
   z-index: 0;
   overflow: hidden;
   background: radial-gradient(circle at 15% 20%, rgba(156, 31, 46, 0.2) 0%, transparent 45%),
-              radial-gradient(circle at 85% 80%, rgba(233, 183, 44, 0.15) 0%, transparent 45%);
+    radial-gradient(circle at 85% 80%, rgba(233, 183, 44, 0.15) 0%, transparent 45%);
 }
 
 :root[data-theme="light"] .bg-layer {
   background: radial-gradient(circle at 15% 20%, rgba(156, 31, 46, 0.16) 0%, transparent 46%),
-              radial-gradient(circle at 85% 80%, rgba(233, 183, 44, 0.22) 0%, transparent 48%);
+    radial-gradient(circle at 85% 80%, rgba(233, 183, 44, 0.22) 0%, transparent 48%);
 }
 
 .noise {
@@ -123,14 +123,12 @@ body.full-view-mode {
   position: relative;
   border-radius: 28px;
   padding: 1px;
-  background: conic-gradient(
-    from var(--border-angle, 0deg),
-    transparent 20%,
-    rgba(156, 31, 46, 0.4) 35%,
-    rgba(233, 183, 44, 0.5) 50%,
-    rgba(255, 255, 255, 0.15) 65%,
-    transparent 80%
-  );
+  background: conic-gradient(from var(--border-angle, 0deg),
+      transparent 20%,
+      rgba(156, 31, 46, 0.4) 35%,
+      rgba(233, 183, 44, 0.5) 50%,
+      rgba(255, 255, 255, 0.15) 65%,
+      transparent 80%);
   animation: rotateBorder 12s linear infinite;
   box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
   transform-style: preserve-3d;
@@ -154,11 +152,9 @@ body.full-view-mode {
 }
 
 .card-inner {
-  background: linear-gradient(
-    165deg,
-    var(--card-bg-start) 0%,
-    var(--card-bg-end) 100%
-  );
+  background: linear-gradient(165deg,
+      var(--card-bg-start) 0%,
+      var(--card-bg-end) 100%);
   backdrop-filter: blur(24px) saturate(1.2);
   border-radius: 27px;
   padding: 32px 28px;
@@ -174,12 +170,10 @@ body.full-view-mode {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent 10%,
-    rgba(233, 183, 44, 0.15) 50%,
-    transparent 90%
-  );
+  background: linear-gradient(90deg,
+      transparent 10%,
+      rgba(233, 183, 44, 0.15) 50%,
+      transparent 90%);
 }
 
 .header {
@@ -259,10 +253,13 @@ body.full-view-mode {
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     box-shadow: 0 0 0 0 rgba(233, 183, 44, 0.4);
   }
+
   50% {
     opacity: 0.5;
     box-shadow: 0 0 0 4px rgba(233, 183, 44, 0);
@@ -304,7 +301,7 @@ body.full-view-mode {
   border-color: rgba(233, 183, 44, 0.5);
   background: rgba(0, 0, 0, 0.4);
   box-shadow: 0 0 0 3px rgba(233, 183, 44, 0.1),
-              inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .submit-btn {
@@ -391,7 +388,7 @@ body.full-view-mode {
   font-weight: 800;
   color: var(--slate-100);
   box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.04),
-              0 6px 12px rgba(0, 0, 0, 0.3);
+    0 6px 12px rgba(0, 0, 0, 0.3);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   overflow: hidden;
@@ -418,12 +415,14 @@ body.full-view-mode {
     opacity: 0.5;
     color: var(--emerald-400);
   }
+
   50% {
     transform: scale(1.05) translateY(-3px);
     color: var(--slate-100);
     text-shadow: 0 0 15px rgba(233, 183, 44, 0.4);
     border-color: rgba(233, 183, 44, 0.4);
   }
+
   100% {
     transform: scale(1) translateY(0);
     opacity: 1;
@@ -449,15 +448,33 @@ body.full-view-mode {
 .otp-container:hover .otp-digit {
   border-color: rgba(233, 183, 44, 0.4);
   box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.05),
-              0 8px 16px rgba(156, 31, 46, 0.15);
+    0 8px 16px rgba(156, 31, 46, 0.15);
   transform: translateY(-2px);
 }
-.otp-container:hover .otp-digit:nth-child(1) { transition-delay: 0.00s; }
-.otp-container:hover .otp-digit:nth-child(2) { transition-delay: 0.02s; }
-.otp-container:hover .otp-digit:nth-child(3) { transition-delay: 0.04s; }
-.otp-container:hover .otp-digit:nth-child(5) { transition-delay: 0.06s; }
-.otp-container:hover .otp-digit:nth-child(6) { transition-delay: 0.08s; }
-.otp-container:hover .otp-digit:nth-child(7) { transition-delay: 0.10s; }
+
+.otp-container:hover .otp-digit:nth-child(1) {
+  transition-delay: 0.00s;
+}
+
+.otp-container:hover .otp-digit:nth-child(2) {
+  transition-delay: 0.02s;
+}
+
+.otp-container:hover .otp-digit:nth-child(3) {
+  transition-delay: 0.04s;
+}
+
+.otp-container:hover .otp-digit:nth-child(5) {
+  transition-delay: 0.06s;
+}
+
+.otp-container:hover .otp-digit:nth-child(6) {
+  transition-delay: 0.08s;
+}
+
+.otp-container:hover .otp-digit:nth-child(7) {
+  transition-delay: 0.10s;
+}
 
 .copy-toast {
   position: absolute;
@@ -579,9 +596,19 @@ body.full-view-mode {
 }
 
 @keyframes shakeDanger {
-  0% { transform: translateX(0); box-shadow: 0 0 0 rgba(156, 31, 46, 0.2); }
-  50% { transform: translateX(-1px); }
-  100% { transform: translateX(1px); box-shadow: 0 0 10px rgba(156, 31, 46, 0.3); }
+  0% {
+    transform: translateX(0);
+    box-shadow: 0 0 0 rgba(156, 31, 46, 0.2);
+  }
+
+  50% {
+    transform: translateX(-1px);
+  }
+
+  100% {
+    transform: translateX(1px);
+    box-shadow: 0 0 10px rgba(156, 31, 46, 0.3);
+  }
 }
 
 .state-danger .ring-fg {
@@ -786,7 +813,7 @@ body.full-view-mode {
 :root[data-theme="light"] .card-inner {
   border: 1px solid rgba(150, 108, 32, 0.24);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75),
-              0 10px 22px rgba(86, 55, 20, 0.14);
+    0 10px 22px rgba(86, 55, 20, 0.14);
 }
 
 :root[data-theme="light"] .badge-live {
@@ -807,14 +834,12 @@ body.full-view-mode {
 :root[data-theme="light"] .nav-link.active {
   color: var(--header-item-active-text);
   border-color: rgba(150, 108, 32, 0.38);
-  background: linear-gradient(
-    110deg,
-    rgba(233, 183, 44, 0.2) 0%,
-    rgba(255, 247, 215, 0.9) 42%,
-    rgba(255, 255, 255, 0.96) 50%,
-    rgba(255, 247, 215, 0.9) 58%,
-    rgba(233, 183, 44, 0.2) 100%
-  );
+  background: linear-gradient(110deg,
+      rgba(233, 183, 44, 0.2) 0%,
+      rgba(255, 247, 215, 0.9) 42%,
+      rgba(255, 255, 255, 0.96) 50%,
+      rgba(255, 247, 215, 0.9) 58%,
+      rgba(233, 183, 44, 0.2) 100%);
   background-size: 240% 100%;
   animation: tabLedFlow 1.8s linear infinite;
 }
@@ -828,6 +853,7 @@ body.full-view-mode {
   from {
     background-position: 220% 0;
   }
+
   to {
     background-position: -40% 0;
   }
@@ -837,7 +863,7 @@ body.full-view-mode {
   color: #fff4e3;
   border-color: rgba(150, 108, 32, 0.28);
   box-shadow: inset 0 2px 6px rgba(255, 255, 255, 0.08),
-              0 7px 14px rgba(0, 0, 0, 0.34);
+    0 7px 14px rgba(0, 0, 0, 0.34);
   text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
 }
 
@@ -876,7 +902,7 @@ body.full-view-mode {
 :root[data-theme="light"] .mail-textarea {
   color: #2a2016;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78),
-              0 2px 9px rgba(90, 58, 21, 0.08);
+    0 2px 9px rgba(90, 58, 21, 0.08);
 }
 
 :root[data-theme="light"] .secret-input:focus,
@@ -884,7 +910,7 @@ body.full-view-mode {
   background: #fffefb;
   border-color: rgba(150, 108, 32, 0.44);
   box-shadow: 0 0 0 3px rgba(233, 183, 44, 0.2),
-              0 10px 18px rgba(90, 58, 21, 0.15);
+    0 10px 18px rgba(90, 58, 21, 0.15);
 }
 
 :root[data-theme="light"] .submit-btn,
@@ -1241,13 +1267,13 @@ body.full-view-mode {
     gap: 6px;
   }
 
-  .mail-form > div {
+  .mail-form>div {
     display: flex;
     flex-direction: column;
     gap: 8px;
   }
 
-  .mail-form > div > .mail-refresh-btn {
+  .mail-form>div>.mail-refresh-btn {
     width: 100%;
     min-width: 0 !important;
   }
@@ -1477,6 +1503,9 @@ body.full-view-mode .outlook-container {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
+  will-change: scroll-position;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .pricing-grid {
@@ -1501,7 +1530,7 @@ body.full-view-mode .outlook-container {
   border: 1px solid rgba(233, 183, 44, 0.18);
   background: var(--panel-bg);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   -webkit-user-select: none;
   user-select: none;
   -webkit-user-drag: none;
@@ -1832,10 +1861,26 @@ body.full-view-mode .outlook-container {
   transform: translateY(-1px);
 }
 
-/* iOS WebKit: avoid nested-scroll dead zone when pricing view is active. */
+/* iOS WebKit: ensure pricing-scroll is the sole scroll container.
+   Do NOT set body overflow-y:auto here — that creates two competing
+   scrollable layers on iOS and kills inner scroll.  Instead, keep
+   body overflow:hidden and let .pricing-scroll handle everything. */
 @supports (-webkit-touch-callout: none) {
   body.full-view-mode.pricing-view-mode {
-    overflow-y: auto;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+  }
+
+  body.pricing-view-mode .pricing-scroll {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+  }
+
+  body.pricing-view-mode .pricing-card {
+    transform: none !important;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
   }
 }
 
@@ -2154,11 +2199,11 @@ body.full-view-mode .outlook-container {
     border-radius: 18px;
   }
 
-  .mail-form > div {
+  .mail-form>div {
     gap: 10px;
   }
 
-  .mail-form > div > .mail-refresh-btn {
+  .mail-form>div>.mail-refresh-btn {
     min-width: 112px !important;
   }
 
@@ -2340,16 +2385,14 @@ body.full-view-mode .outlook-container {
   font-size: 15.5px;
   font-weight: 600;
   text-align: center;
-  background: linear-gradient(
-    90deg,
-    #ff6b6b,
-    #ff9f43,
-    #feca57,
-    #48dbfb,
-    #1dd1a1,
-    #5f27cd,
-    #ff6b6b
-  );
+  background: linear-gradient(90deg,
+      #ff6b6b,
+      #ff9f43,
+      #feca57,
+      #48dbfb,
+      #1dd1a1,
+      #5f27cd,
+      #ff6b6b);
   background-size: 300% 300%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2430,6 +2473,7 @@ body.full-view-mode .outlook-container {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .modal-top-drop .modal-content,
   .welcome-icon-container {
     transition: none;
@@ -2562,13 +2606,23 @@ body.full-view-mode .outlook-container {
 
   .pricing-scroll {
     padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
   }
 
   #viewPricing .outlook-container {
     overflow: hidden;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
-}
 
+  #viewPricing .pricing-scroll {
+    flex: 1;
+    min-height: 0;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
