@@ -1198,56 +1198,8 @@ body.full-view-mode {
   color: #ff8a8a;
 }
 
+/* Mobile component sizing (cards, OTP, list items, pricing cards) */
 @media (max-width: 480px) {
-  .site-header-container {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    padding: 10px 10px;
-    gap: 8px;
-  }
-
-  .menu-container {
-    grid-column: 1 / -1;
-    width: 100%;
-  }
-
-  .header-actions {
-    justify-self: end;
-    gap: 6px;
-  }
-
-  .theme-toggle-btn {
-    width: 34px;
-    min-width: 34px;
-    height: 34px;
-  }
-
-  .site-nav {
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-    padding: 0;
-    border: none;
-    background: transparent;
-  }
-
-  .nav-link {
-    min-height: 36px;
-    padding: 8px 8px;
-    font-size: 0.82rem;
-  }
-
-  .site-logo span {
-    font-size: 1rem;
-  }
-
-  .site-logo img {
-    width: 28px;
-    height: 28px;
-  }
-
   .modal-content {
     padding: 24px 18px;
   }
@@ -1282,17 +1234,6 @@ body.full-view-mode {
 
   .app-title {
     font-size: 1.1rem;
-  }
-
-  .outlook-wrap {
-    width: calc(100% - 12px);
-    height: calc(var(--viewport-height) - var(--header-offset) - 8px);
-    max-height: calc(var(--viewport-height) - var(--header-offset) - 8px);
-  }
-
-  .outlook-container {
-    padding: 14px;
-    border-radius: 16px;
   }
 
   .mail-form {
@@ -1380,9 +1321,7 @@ body.full-view-mode {
   }
 
   .pricing-grid {
-    grid-template-columns: 1fr;
     gap: 12px;
-    padding: 4px 0 2px;
   }
 
   .pricing-card {
@@ -2485,6 +2424,7 @@ body.full-view-mode .outlook-container {
   }
 }
 
+/* Mobile shell/layout behavior (header menu + full-view pricing/outlook containers) */
 @media (max-width: 480px) {
   .site-header-container {
     display: grid;
