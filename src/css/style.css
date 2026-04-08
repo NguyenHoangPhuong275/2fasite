@@ -1473,6 +1473,7 @@ body.full-view-mode .outlook-container {
   min-height: 0;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   touch-action: pan-y;
@@ -1504,6 +1505,7 @@ body.full-view-mode .outlook-container {
   -webkit-user-select: none;
   user-select: none;
   -webkit-user-drag: none;
+  touch-action: pan-y;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1527,6 +1529,7 @@ body.full-view-mode .outlook-container {
     radial-gradient(circle at 18% 20%, rgba(156, 31, 46, 0.28), transparent 54%),
     radial-gradient(circle at 85% 80%, rgba(233, 183, 44, 0.16), transparent 56%),
     linear-gradient(145deg, rgba(30, 18, 20, 0.94), rgba(17, 11, 12, 0.98));
+  touch-action: pan-y;
 }
 
 .pricing-logo-box {
@@ -1599,6 +1602,7 @@ body.full-view-mode .outlook-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  touch-action: pan-y;
 }
 
 .pricing-meta {
@@ -1635,6 +1639,7 @@ body.full-view-mode .outlook-container {
 .pricing-card-actions {
   padding: 0 12px 12px;
   margin-top: auto;
+  touch-action: pan-y;
 }
 
 .pricing-card-price {
@@ -1667,6 +1672,7 @@ body.full-view-mode .outlook-container {
   outline: none;
   margin-top: 0;
   transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  touch-action: manipulation;
 }
 
 .pricing-readmore:hover {
@@ -1824,6 +1830,13 @@ body.full-view-mode .outlook-container {
   border-color: rgba(233, 183, 44, 0.44);
   background: rgba(233, 183, 44, 0.2);
   transform: translateY(-1px);
+}
+
+/* iOS WebKit: avoid nested-scroll dead zone when pricing view is active. */
+@supports (-webkit-touch-callout: none) {
+  body.full-view-mode.pricing-view-mode {
+    overflow-y: auto;
+  }
 }
 
 .outlook-list-container {

@@ -628,6 +628,7 @@ export function initOutlookModal() {
   if (nav2faBtn && mailBtn && pricingBtn && view2fa && viewOutlook && viewPricing) {
     const setActiveView = (nextView) => {
       setFullViewMode(nextView === "outlook" || nextView === "pricing");
+      document.body.classList.toggle("pricing-view-mode", nextView === "pricing");
 
       nav2faBtn.classList.remove("active");
       mailBtn.classList.remove("active");
