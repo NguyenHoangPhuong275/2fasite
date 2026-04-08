@@ -86,6 +86,12 @@ body.full-view-mode {
   overflow: hidden;
 }
 
+body.pricing-view-mode {
+  align-items: stretch;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
 .bg-layer {
   position: fixed;
   inset: 0;
@@ -1352,16 +1358,7 @@ body.full-view-mode {
 
   .pricing-card {
     border-radius: 10px;
-    overflow: clip;
-    pointer-events: none;
-  }
-
-  .pricing-card * {
-    pointer-events: none;
-  }
-
-  .pricing-readmore {
-    pointer-events: auto;
+    overflow: hidden;
   }
 
   .pricing-card-media {
@@ -1530,12 +1527,43 @@ body.full-view-mode .outlook-container {
   padding: 4px 2px 2px;
 }
 
+#viewPricing.outlook-wrap {
+  position: relative;
+  top: auto;
+  left: auto;
+  right: auto;
+  width: min(980px, calc(100% - 24px));
+  height: auto;
+  max-height: none;
+  margin: calc(var(--header-offset) + 12px) auto 20px;
+  padding: 0;
+}
+
+#viewPricing .outlook-container {
+  overflow: visible;
+  min-height: 0;
+}
+
+#viewPricing .pricing-scroll {
+  flex: 0 0 auto;
+  min-height: auto;
+  height: auto;
+  overflow: visible;
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+}
+
+#viewPricing .pricing-grid {
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding: 4px 0 2px;
+}
+
 .pricing-card {
   display: flex;
   flex-direction: column;
   height: auto;
   min-height: max-content;
-  overflow: clip;
+  overflow: hidden;
   border-radius: 12px;
   border: 1px solid rgba(233, 183, 44, 0.18);
   background: var(--panel-bg);
@@ -1560,7 +1588,7 @@ body.full-view-mode .outlook-container {
   display: flex;
   position: relative;
   height: 120px;
-  overflow: clip;
+  overflow: hidden;
   align-items: center;
   justify-content: center;
   padding: 12px;
@@ -1871,42 +1899,10 @@ body.full-view-mode .outlook-container {
   transform: translateY(-1px);
 }
 
-/* iOS WebKit: ensure pricing-scroll is the sole scroll container.
-   - body stays overflow:hidden + position:fixed so no competing scroll.
-   - pricing-card uses overflow:clip (not hidden) to avoid creating a
-     scroll port that swallows touch events.
-   - pointer-events:none on cards lets touch pass through to
-     .pricing-scroll; only re-enabled on interactive buttons. */
+/* iOS WebKit: keep pricing layout in page-flow and avoid gesture traps. */
 @supports (-webkit-touch-callout: none) {
-  body.full-view-mode.pricing-view-mode {
-    overflow: hidden;
-    position: fixed;
-    width: 100%;
-    height: 100%;
-  }
-
-  body.pricing-view-mode .pricing-scroll {
-    -webkit-overflow-scrolling: touch;
-    overflow-y: scroll;
-  }
-
-  body.pricing-view-mode .pricing-card {
-    overflow: clip;
-    transform: none !important;
-    transition: none;
-    pointer-events: none;
-  }
-
-  body.pricing-view-mode .pricing-card * {
-    pointer-events: none;
-  }
-
-  body.pricing-view-mode .pricing-readmore {
-    pointer-events: auto;
-  }
-
-  body.pricing-view-mode .pricing-card-media {
-    overflow: clip;
+  body.pricing-view-mode {
+    overflow-y: auto;
   }
 }
 
@@ -2630,39 +2626,29 @@ body.full-view-mode .outlook-container {
     padding: 4px 0 2px;
   }
 
-  .pricing-scroll {
-    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
-  }
-
-  .pricing-card {
-    overflow: clip;
-    pointer-events: none;
-  }
-
-  .pricing-card * {
-    pointer-events: none;
-  }
-
-  .pricing-readmore {
-    pointer-events: auto;
+  #viewPricing.outlook-wrap {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    width: calc(100% - 16px);
+    height: auto;
+    max-height: none;
+    margin: calc(var(--header-offset) + 8px) auto 16px;
+    padding: 0;
   }
 
   #viewPricing .outlook-container {
-    overflow: hidden;
+    overflow: visible;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
+    display: block;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
 
   #viewPricing .pricing-scroll {
-    flex: 1;
-    min-height: 0;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
+    overflow: visible;
+    height: auto;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   }
 }
