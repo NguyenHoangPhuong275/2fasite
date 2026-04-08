@@ -1540,6 +1540,7 @@ body.full-view-mode .outlook-container {
   align-content: start;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   padding: 4px 2px 2px;
 }
 
@@ -1554,8 +1555,9 @@ body.full-view-mode .outlook-container {
   background: var(--panel-bg);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-  touch-action: pan-y;
-  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -1606,6 +1608,8 @@ body.full-view-mode .outlook-container {
   object-fit: contain;
   object-position: center;
   filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+  -webkit-user-drag: none;
+  pointer-events: none;
 }
 
 .pricing-card:nth-child(2) .pricing-logo-image {
