@@ -2581,27 +2581,16 @@ body.full-view-mode .outlook-container {
 
   .pricing-grid {
     grid-template-columns: 1fr;
-    min-height: 0;
-    overflow-y: scroll;
+    min-height: max-content;
+    overflow: visible;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #viewPricing .outlook-container {
+    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
-    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-    touch-action: auto;
-  }
-
-  .pricing-card,
-  .pricing-card * {
-    pointer-events: none;
-  }
-
-  .pricing-card-actions,
-  .pricing-card-actions *,
-  .pricing-readmore {
-    pointer-events: auto;
-  }
-
-  .pricing-readmore {
-    touch-action: auto;
+    touch-action: pan-y;
   }
 }
 
