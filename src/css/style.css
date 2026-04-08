@@ -2581,16 +2581,16 @@ body.full-view-mode .outlook-container {
 
   .pricing-grid {
     grid-template-columns: 1fr;
-    min-height: max-content;
-    overflow: visible;
-    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
-  }
-
-  #viewPricing .outlook-container {
+    min-height: 0;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     touch-action: pan-y;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #viewPricing .outlook-container {
+    overflow: hidden;
   }
 }
 
