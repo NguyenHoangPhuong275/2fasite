@@ -2473,6 +2473,7 @@ body.full-view-mode .outlook-container {
   }
 
   .site-logo {
+    grid-column: 1;
     min-width: 0;
     gap: 8px;
     overflow: hidden;
@@ -2486,10 +2487,13 @@ body.full-view-mode .outlook-container {
   }
 
   .menu-container {
+    grid-column: 2;
     margin-left: 0;
+    width: auto;
     flex: 0 0 auto;
     position: relative;
     min-width: 0;
+    justify-self: end;
   }
 
   .menu-toggle {
@@ -2542,6 +2546,7 @@ body.full-view-mode .outlook-container {
   }
 
   .header-actions {
+    grid-column: 3;
     display: inline-flex;
     flex: 0 0 auto;
     align-items: center;
