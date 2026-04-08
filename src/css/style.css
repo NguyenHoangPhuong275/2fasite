@@ -2465,26 +2465,31 @@ body.full-view-mode .outlook-container {
 
 @media (max-width: 480px) {
   .site-header-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: 8px;
+    column-gap: 8px;
     padding: 8px 10px;
   }
 
   .site-logo {
     min-width: 0;
     gap: 8px;
+    overflow: hidden;
   }
 
   .site-logo span {
     font-size: 0.98rem;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .menu-container {
-    margin-left: auto;
+    margin-left: 0;
     flex: 0 0 auto;
     position: relative;
+    min-width: 0;
   }
 
   .menu-toggle {
@@ -2537,8 +2542,12 @@ body.full-view-mode .outlook-container {
   }
 
   .header-actions {
+    display: inline-flex;
     flex: 0 0 auto;
+    align-items: center;
+    justify-content: flex-end;
     gap: 6px;
+    min-width: 34px;
   }
 
   .theme-toggle-btn {
@@ -2568,11 +2577,25 @@ body.full-view-mode .outlook-container {
   .pricing-grid {
     grid-template-columns: 1fr;
     min-height: 0;
-    overflow-y: auto;
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding-bottom: 18px;
+    overscroll-behavior-y: contain;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     touch-action: pan-y;
+  }
+
+  .pricing-card-media,
+  .pricing-card-body {
+    pointer-events: none;
+  }
+
+  .pricing-card-actions,
+  .pricing-readmore {
+    pointer-events: auto;
+  }
+
+  .pricing-readmore {
+    touch-action: manipulation;
   }
 }
 
