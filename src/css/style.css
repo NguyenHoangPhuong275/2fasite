@@ -921,7 +921,13 @@ body.full-view-mode {
   box-shadow: 0 16px 34px rgba(90, 58, 21, 0.14);
 }
 
-:root[data-theme="light"] .pricing-card:hover,
+@media (hover: hover) and (pointer: fine) {
+  :root[data-theme="light"] .pricing-card:hover {
+    border-color: rgba(150, 108, 32, 0.38);
+    box-shadow: 0 14px 26px rgba(90, 58, 21, 0.2);
+  }
+}
+
 :root[data-theme="light"] .outlook-list-item:hover,
 :root[data-theme="light"] .contact-item:hover,
 :root[data-theme="light"] .welcome-group-btn:hover {
@@ -1533,6 +1539,7 @@ body.full-view-mode .outlook-container {
   align-items: start;
   align-content: start;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 4px 2px 2px;
 }
 
@@ -1547,13 +1554,17 @@ body.full-view-mode .outlook-container {
   background: var(--panel-bg);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
 }
 
-.pricing-card:hover {
-  border-color: rgba(233, 183, 44, 0.38);
-  background: rgba(233, 183, 44, 0.07);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+@media (hover: hover) and (pointer: fine) {
+  .pricing-card:hover {
+    border-color: rgba(233, 183, 44, 0.38);
+    background: rgba(233, 183, 44, 0.07);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+  }
 }
 
 .pricing-card-media {
