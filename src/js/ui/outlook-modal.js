@@ -7,6 +7,32 @@ const MESSAGE_LIMIT = 12;
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const EMAIL_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const REFRESH_TOKEN_PATTERN = /M\.[^\s|]+/g;
+const TEXT = {
+  timeout: "Yêu cầu hết thời gian chờ (15s). Thử lại sau.",
+  endpoint405:
+    "Endpoint /api/token đang trả về 405. Hãy chạy app bằng npx vercel dev (không mở file HTML trực tiếp, không dùng Live Server).",
+  aadsts: "AADSTS90023: App Entra chưa được cấu hình đúng cho luồng token hiện tại.",
+  network: "Không thể kết nối endpoint Microsoft. Kiểm tra mạng, VPN/firewall hoặc CORS.",
+  loadData: "Không thể tải dữ liệu.",
+  senderUnknown: "Không rõ",
+  subjectEmpty: "(Không tiêu đề)",
+  timeUnknown: "Không rõ thời gian",
+  detailDefaultTitle: "Nội dung thư",
+  detailEmptyBody: "(Thư không có nội dung hiển thị.)",
+  emailUnknown: "Không rõ email",
+  copyTitle: "Click để copy",
+  copied: "Copied",
+  noToken: "Thiếu access token.",
+  loadToken: "Không thể lấy access token.",
+  noMessages: "Không thể tải danh sách thư.",
+  loadingContent: "Đang tải nội dung thư...",
+  loadedList: "Đã tải danh sách thư.",
+  noMailData: "Không tìm thấy dữ liệu.",
+  loading: "Đang đọc...",
+  loadingList: "Đang đọc thư...",
+  noNew: "Không có thư mới.",
+  readMail: "Đọc thư",
+};
 
 function withTimeout(ms) {
   const controller = new AbortController();
@@ -51,27 +77,27 @@ async function requestJson(url, options = {}) {
 
 function normalizeUiError(error) {
   if (error && typeof error === "object" && "name" in error && error.name === "AbortError") {
-    return "Y\u00eau c\u1ea7u h\u1ebft th\u1eddi gian ch\u1edd (15s). Th\u1eed l\u1ea1i sau.";
+    return TEXT.timeout;
   }
 
   const message = error instanceof Error ? error.message : String(error || "");
   if (message.toLowerCase().includes("aborted")) {
-    return "Y\u00eau c\u1ea7u h\u1ebft th\u1eddi gian ch\u1edd (15s). Th\u1eed l\u1ea1i sau.";
+    return TEXT.timeout;
   }
 
   if (message === "HTTP 405") {
-    return "Endpoint /api/token \u0111ang tr\u1ea3 v\u1ec1 405. H\u00e3y ch\u1ea1y app b\u1eb1ng npx vercel dev (kh\u00f4ng m\u1edf file HTML tr\u1ef1c ti\u1ebfp, kh\u00f4ng d\u00f9ng Live Server).";
+    return TEXT.endpoint405;
   }
 
   if (/AADSTS90023/i.test(message) || /Cross-origin token redemption/i.test(message)) {
-    return "AADSTS90023: App Entra ch\u01b0a \u0111\u01b0\u1ee3c c\u1ea5u h\u00ecnh \u0111\u00fang cho lu\u1ed3ng token hi\u1ec7n t\u1ea1i.";
+    return TEXT.aadsts;
   }
 
   if (message === "Failed to fetch" || message.includes("NetworkError")) {
-    return "Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i endpoint Microsoft. Ki\u1ec3m tra m\u1ea1ng, VPN/firewall ho\u1eb7c CORS.";
+    return TEXT.network;
   }
 
-  return message || "Kh\u00f4ng th\u1ec3 t\u1ea3i d\u1eef li\u1ec7u.";
+  return message || TEXT.loadData;
 }
 
 function uniqueIgnoreCase(values) {
@@ -112,14 +138,12 @@ function parsePastedCredentialPayload(rawValue) {
     .filter(Boolean);
 
   let email = "";
-  let password = "";
   let refreshToken = "";
   let deviceId = "";
   let clientId = "";
 
   if (segments.length >= 4 && isEmail(segments[0]) && isRefreshToken(segments[2]) && isUuid(segments[3])) {
     email = segments[0];
-    password = segments[1] || "";
     refreshToken = segments[2];
     deviceId = segments[3];
   } else if (segments.length >= 3 && isEmail(segments[0]) && isRefreshToken(segments[1]) && isUuid(segments[2])) {
@@ -161,9 +185,7 @@ function parsePastedCredentialPayload(rawValue) {
   }
 
   return {
-    raw,
     email,
-    password,
     refreshToken,
     deviceId,
     clientId,
@@ -174,8 +196,8 @@ function normalizeSender(message) {
   const sender = message?.Sender?.EmailAddress || message?.from?.emailAddress;
 
   return {
-    name: sender?.Name || sender?.name || "Unknown",
-    address: sender?.Address || sender?.address || "Unknown",
+    name: sender?.Name || sender?.name || TEXT.senderUnknown,
+    address: sender?.Address || sender?.address || TEXT.senderUnknown,
   };
 }
 
@@ -189,7 +211,7 @@ function normalizeMessages(messages) {
 
     return {
       id: String(message?.Id || message?.id || ""),
-      subject: String(message?.Subject || message?.subject || "(Kh\u00f4ng ti\u00eau \u0111\u1ec1)"),
+      subject: String(message?.Subject || message?.subject || TEXT.subjectEmpty),
       receivedAt: String(message?.ReceivedDateTime || message?.receivedDateTime || ""),
       preview: String(message?.BodyPreview || message?.bodyPreview || ""),
       senderName: sender.name,
@@ -209,7 +231,7 @@ function buildMessagesUrl(endpoint) {
 function formatDate(value) {
   const timestamp = Date.parse(value);
   if (!Number.isFinite(timestamp)) {
-    return "Kh\u00f4ng r\u00f5 th\u1eddi gian";
+    return TEXT.timeUnknown;
   }
 
   return new Intl.DateTimeFormat("vi-VN", {
@@ -223,7 +245,7 @@ function getSenderLine(message) {
     return `${message.senderName} <${message.senderAddress}>`;
   }
 
-  return message.senderAddress || message.senderName || "Unknown";
+  return message.senderAddress || message.senderName || TEXT.senderUnknown;
 }
 
 function extractOtpCode(message) {
@@ -261,9 +283,9 @@ function renderMessageIntoFrame(iframe, subject, rawContent) {
   if (looksLikeHtml) {
     doc.write(content);
   } else {
-    const safeSubject = escapeHtml(subject || "N\u1ed9i dung th\u01b0");
-    const safeContent = escapeHtml(content || "(Th\u01b0 kh\u00f4ng c\u00f3 n\u1ed9i dung hi\u1ec3n th\u1ecb.)");
-    doc.write(`<!doctype html><html><head><meta charset=\"UTF-8\"><title>${safeSubject}</title><style>body{font-family:Inter,Segoe UI,system-ui,sans-serif;padding:16px;line-height:1.6;color:#111}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${safeContent}</pre></body></html>`);
+    const safeSubject = escapeHtml(subject || TEXT.detailDefaultTitle);
+    const safeContent = escapeHtml(content || TEXT.detailEmptyBody);
+    doc.write(`<!doctype html><html><head><meta charset="UTF-8"><title>${safeSubject}</title><style>body{font-family:Inter,Segoe UI,system-ui,sans-serif;padding:16px;line-height:1.6;color:#111}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${safeContent}</pre></body></html>`);
   }
 
   doc.close();
@@ -313,7 +335,7 @@ function buildMessageItem(message, index, email, state, onExpand) {
 
   const subtitleDiv = document.createElement("div");
   subtitleDiv.className = "outlook-item-subtitle";
-  subtitleDiv.textContent = `${getSenderLine(message)} - ${email || "Kh\u00f4ng r\u00f5 email"}`;
+  subtitleDiv.textContent = `${getSenderLine(message)} - ${email || TEXT.emailUnknown}`;
 
   contentDiv.append(titleRow, subtitleDiv);
 
@@ -327,13 +349,13 @@ function buildMessageItem(message, index, email, state, onExpand) {
     const codeDiv = document.createElement("div");
     codeDiv.className = "outlook-item-code";
     codeDiv.textContent = code;
-    codeDiv.title = "Click \u0111\u1ec3 copy";
+    codeDiv.title = TEXT.copyTitle;
 
     codeDiv.addEventListener("click", async (event) => {
       event.stopPropagation();
       try {
         await navigator.clipboard.writeText(code);
-        codeDiv.textContent = "Copied";
+        codeDiv.textContent = TEXT.copied;
         codeDiv.classList.add("copied");
 
         setTimeout(() => {
@@ -353,8 +375,11 @@ function buildMessageItem(message, index, email, state, onExpand) {
 export function initOutlookModal() {
   const nav2faBtn = document.getElementById("nav2faBtn");
   const mailBtn = document.getElementById("mailBtn");
+  const pricingBtn = document.getElementById("pricingBtn");
   const view2fa = document.getElementById("view2fa");
   const viewOutlook = document.getElementById("viewOutlook");
+  const viewPricing = document.getElementById("viewPricing");
+  const siteHeader = document.querySelector(".site-header");
 
   const payloadInput = document.getElementById("mailPayload");
   const loadMailBtn = document.getElementById("loadMailBtn");
@@ -371,8 +396,6 @@ export function initOutlookModal() {
     return;
   }
 
-  const defaultLoadButtonLabel = loadMailBtn.textContent || "\u0110\u1ecdc th\u01b0";
-
   const state = {
     detailCache: new Map(),
     accessToken: "",
@@ -380,7 +403,7 @@ export function initOutlookModal() {
     isLoading: false,
     async loadDetail(messageId) {
       if (!state.accessToken) {
-        throw new Error("Thi\u1ebfu access token.");
+        throw new Error(TEXT.noToken);
       }
 
       const detail = await requestJson(`${state.messagesEndpoint}/${encodeURIComponent(messageId)}`, {
@@ -401,6 +424,24 @@ export function initOutlookModal() {
 
       return "";
     },
+  };
+
+  const syncHeaderOffset = () => {
+    document.documentElement.style.setProperty("--viewport-height", `${window.innerHeight}px`);
+
+    if (!siteHeader) {
+      return;
+    }
+
+    const headerHeight = Math.ceil(siteHeader.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--header-offset", `${headerHeight}px`);
+  };
+
+  const setFullViewMode = (enabled) => {
+    document.body.classList.toggle("full-view-mode", enabled);
+    if (enabled) {
+      syncHeaderOffset();
+    }
   };
 
   function setStatus(text, isError = false) {
@@ -432,7 +473,7 @@ export function initOutlookModal() {
       return;
     }
 
-    const subject = message?.subject || "N\u1ed9i dung th\u01b0";
+    const subject = message?.subject || TEXT.detailDefaultTitle;
     detailTitle.textContent = subject;
 
     if (detailMeta) {
@@ -474,7 +515,7 @@ export function initOutlookModal() {
 
     const accessToken = typeof payload?.access_token === "string" ? payload.access_token.trim() : "";
     if (!accessToken) {
-      throw new Error("Kh\u00f4ng th\u1ec3 l\u1ea5y access token.");
+      throw new Error(TEXT.loadToken);
     }
 
     return accessToken;
@@ -505,7 +546,7 @@ export function initOutlookModal() {
       }
     }
 
-    throw firstError || new Error("Kh\u00f4ng th\u1ec3 t\u1ea3i danh s\u00e1ch th\u01b0.");
+    throw firstError || new Error(TEXT.noMessages);
   }
 
   async function handleExpandMessage(rowElement, message, currentState) {
@@ -519,13 +560,13 @@ export function initOutlookModal() {
       if (currentState.detailCache.has(message.id)) {
         detailContent = currentState.detailCache.get(message.id);
       } else {
-        setStatus("\u0110ang t\u1ea3i n\u1ed9i dung th\u01b0...");
+        setStatus(TEXT.loadingContent);
         detailContent = await currentState.loadDetail(message.id);
         currentState.detailCache.set(message.id, detailContent);
       }
 
       openDetailModal(message, detailContent);
-      setStatus("\u0110\u00e3 t\u1ea3i danh s\u00e1ch th\u01b0.");
+      setStatus(TEXT.loadedList);
     } catch (error) {
       setStatus(normalizeUiError(error), true);
     }
@@ -538,7 +579,7 @@ export function initOutlookModal() {
 
     const parsed = parsePastedCredentialPayload(payloadInput.value);
     if (!parsed.refreshToken) {
-      const message = "Không tìm thấy dữ liệu.";
+      const message = TEXT.noMailData;
       setStatus(message, true);
       setListNotice(message, true);
       return;
@@ -546,8 +587,8 @@ export function initOutlookModal() {
 
     state.isLoading = true;
     loadMailBtn.disabled = true;
-    loadMailBtn.textContent = "\u0110ang \u0111\u1ecdc...";
-    setListNotice("\u0110ang \u0111\u1ecdc th\u01b0...");
+    loadMailBtn.textContent = TEXT.loading;
+    setListNotice(TEXT.loadingList);
     setStatus("");
 
     try {
@@ -558,7 +599,7 @@ export function initOutlookModal() {
 
       const messages = normalizeMessages(payload?.value || []);
       if (!messages.length) {
-        const message = "Kh\u00f4ng c\u00f3 th\u01b0 m\u1edbi.";
+        const message = TEXT.noNew;
         setStatus(message);
         setListNotice(message);
         return;
@@ -572,7 +613,7 @@ export function initOutlookModal() {
       }
 
       mailList.appendChild(fragment);
-      setStatus(`\u0110\u00e3 t\u1ea3i ${messages.length} th\u01b0.`);
+      setStatus(`Đã tải ${messages.length} thư.`);
     } catch (error) {
       const message = normalizeUiError(error);
       setStatus(message, true);
@@ -580,25 +621,51 @@ export function initOutlookModal() {
     } finally {
       state.isLoading = false;
       loadMailBtn.disabled = false;
-      loadMailBtn.textContent = defaultLoadButtonLabel;
+      loadMailBtn.textContent = TEXT.readMail;
     }
   }
 
-  if (nav2faBtn && mailBtn && view2fa && viewOutlook) {
+  if (nav2faBtn && mailBtn && pricingBtn && view2fa && viewOutlook && viewPricing) {
+    const setActiveView = (nextView) => {
+      setFullViewMode(nextView === "outlook" || nextView === "pricing");
+
+      nav2faBtn.classList.remove("active");
+      mailBtn.classList.remove("active");
+      pricingBtn.classList.remove("active");
+
+      view2fa.style.display = "none";
+      viewOutlook.style.display = "none";
+      viewPricing.style.display = "none";
+
+      if (nextView === "2fa") {
+        nav2faBtn.classList.add("active");
+        view2fa.style.display = "";
+        return;
+      }
+
+      if (nextView === "outlook") {
+        mailBtn.classList.add("active");
+        viewOutlook.style.display = "flex";
+        return;
+      }
+
+      pricingBtn.classList.add("active");
+      viewPricing.style.display = "flex";
+    };
+
     nav2faBtn.addEventListener("click", (event) => {
       event.preventDefault();
-      nav2faBtn.classList.add("active");
-      mailBtn.classList.remove("active");
-      view2fa.style.display = "";
-      viewOutlook.style.display = "none";
+      setActiveView("2fa");
     });
 
     mailBtn.addEventListener("click", (event) => {
       event.preventDefault();
-      mailBtn.classList.add("active");
-      nav2faBtn.classList.remove("active");
-      view2fa.style.display = "none";
-      viewOutlook.style.display = "flex";
+      setActiveView("outlook");
+    });
+
+    pricingBtn.addEventListener("click", (event) => {
+      event.preventDefault();
+      setActiveView("pricing");
     });
   }
 
@@ -617,4 +684,10 @@ export function initOutlookModal() {
   loadMailBtn.addEventListener("click", () => {
     void loadMessages();
   });
+
+  syncHeaderOffset();
+  window.addEventListener("resize", syncHeaderOffset);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", syncHeaderOffset);
+  }
 }
