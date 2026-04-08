@@ -2463,3 +2463,116 @@ body.full-view-mode .outlook-container {
   }
 }
 
+@media (max-width: 480px) {
+  .site-header-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+
+  .site-logo {
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .site-logo span {
+    font-size: 0.98rem;
+    white-space: nowrap;
+  }
+
+  .menu-container {
+    margin-left: auto;
+    flex: 0 0 auto;
+    position: relative;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    min-height: 34px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--header-surface-border);
+    background: var(--header-surface-bg);
+    color: var(--slate-100);
+    font-size: 0.76rem;
+    letter-spacing: 0.04em;
+  }
+
+  .site-nav {
+    position: fixed;
+    top: calc(var(--header-offset) + 6px);
+    right: 10px;
+    width: min(260px, calc(100vw - 20px));
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 10px;
+    border: 1px solid rgba(233, 183, 44, 0.22);
+    border-radius: 14px;
+    background: linear-gradient(165deg, rgba(24, 15, 16, 0.97), rgba(13, 8, 9, 0.98));
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    z-index: 120;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  }
+
+  .site-nav.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .nav-link {
+    width: 100%;
+    min-height: 34px;
+    justify-content: flex-start;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+
+  .header-actions {
+    flex: 0 0 auto;
+    gap: 6px;
+  }
+
+  .theme-toggle-btn {
+    width: 34px;
+    min-width: 34px;
+    height: 34px;
+  }
+
+  .outlook-wrap,
+  body.full-view-mode .outlook-wrap {
+    width: 100%;
+    max-width: none;
+    left: 0;
+    right: 0;
+    top: var(--header-offset);
+    height: calc(var(--viewport-height) - var(--header-offset));
+    max-height: calc(var(--viewport-height) - var(--header-offset));
+    margin: 0;
+    padding: 0;
+  }
+
+  .outlook-container {
+    padding: 14px;
+    border-radius: 0;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding-bottom: 18px;
+    touch-action: pan-y;
+  }
+}
+
