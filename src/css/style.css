@@ -1529,18 +1529,24 @@ body.full-view-mode .outlook-container {
   margin-bottom: 14px;
 }
 
-.pricing-grid {
+.pricing-scroll {
   flex: 1;
   min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  touch-action: pan-y;
+}
+
+.pricing-grid {
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(clamp(180px, 18vw, 220px), 1fr));
   grid-auto-rows: max-content;
   gap: 12px;
   align-items: start;
   align-content: start;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
+  overflow: visible;
   padding: 4px 2px 2px;
 }
 
@@ -2596,16 +2602,18 @@ body.full-view-mode .outlook-container {
 
   .pricing-grid {
     grid-template-columns: 1fr;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior-y: contain;
-    touch-action: pan-y;
+    padding: 4px 0 2px;
+  }
+
+  .pricing-scroll {
     padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   }
 
   #viewPricing .outlook-container {
     overflow: hidden;
+    min-height: 0;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }
 

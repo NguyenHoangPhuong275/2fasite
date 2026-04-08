@@ -391,6 +391,8 @@ export function initOutlookModal() {
   const detailMeta = document.getElementById("mailDetailMeta");
   const detailFrame = document.getElementById("mailDetailFrame");
   const closeDetailBtn = document.getElementById("closeMailDetailBtn");
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 
   if (!payloadInput || !loadMailBtn || !mailList) {
     return;
@@ -627,7 +629,8 @@ export function initOutlookModal() {
 
   if (nav2faBtn && mailBtn && pricingBtn && view2fa && viewOutlook && viewPricing) {
     const setActiveView = (nextView) => {
-      setFullViewMode(nextView === "outlook" || nextView === "pricing");
+      const shouldUseFullView = nextView === "outlook" || (nextView === "pricing" && !isIOS);
+      setFullViewMode(shouldUseFullView);
 
       nav2faBtn.classList.remove("active");
       mailBtn.classList.remove("active");
