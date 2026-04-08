@@ -1352,6 +1352,16 @@ body.full-view-mode {
 
   .pricing-card {
     border-radius: 10px;
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  .pricing-card * {
+    pointer-events: none;
+  }
+
+  .pricing-readmore {
+    pointer-events: auto;
   }
 
   .pricing-card-media {
@@ -1525,7 +1535,7 @@ body.full-view-mode .outlook-container {
   flex-direction: column;
   height: auto;
   min-height: max-content;
-  overflow: hidden;
+  overflow: clip;
   border-radius: 12px;
   border: 1px solid rgba(233, 183, 44, 0.18);
   background: var(--panel-bg);
@@ -1550,7 +1560,7 @@ body.full-view-mode .outlook-container {
   display: flex;
   position: relative;
   height: 120px;
-  overflow: hidden;
+  overflow: clip;
   align-items: center;
   justify-content: center;
   padding: 12px;
@@ -1862,9 +1872,11 @@ body.full-view-mode .outlook-container {
 }
 
 /* iOS WebKit: ensure pricing-scroll is the sole scroll container.
-   Do NOT set body overflow-y:auto here — that creates two competing
-   scrollable layers on iOS and kills inner scroll.  Instead, keep
-   body overflow:hidden and let .pricing-scroll handle everything. */
+   - body stays overflow:hidden + position:fixed so no competing scroll.
+   - pricing-card uses overflow:clip (not hidden) to avoid creating a
+     scroll port that swallows touch events.
+   - pointer-events:none on cards lets touch pass through to
+     .pricing-scroll; only re-enabled on interactive buttons. */
 @supports (-webkit-touch-callout: none) {
   body.full-view-mode.pricing-view-mode {
     overflow: hidden;
@@ -1879,8 +1891,22 @@ body.full-view-mode .outlook-container {
   }
 
   body.pricing-view-mode .pricing-card {
+    overflow: clip;
     transform: none !important;
-    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    transition: none;
+    pointer-events: none;
+  }
+
+  body.pricing-view-mode .pricing-card * {
+    pointer-events: none;
+  }
+
+  body.pricing-view-mode .pricing-readmore {
+    pointer-events: auto;
+  }
+
+  body.pricing-view-mode .pricing-card-media {
+    overflow: clip;
   }
 }
 
@@ -2608,6 +2634,20 @@ body.full-view-mode .outlook-container {
     padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  .pricing-card {
+    overflow: clip;
+    pointer-events: none;
+  }
+
+  .pricing-card * {
+    pointer-events: none;
+  }
+
+  .pricing-readmore {
+    pointer-events: auto;
   }
 
   #viewPricing .outlook-container {
