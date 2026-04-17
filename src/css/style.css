@@ -1243,7 +1243,7 @@ body {
   width: 90px;
   height: 90px;
   border-radius: 14px;
-  border: 1px solid rgba(233, 183, 44, 0.2);
+  border: none;
   background: rgba(0, 0, 0, 0.22);
   padding: 9px;
   display: flex;
@@ -1472,7 +1472,7 @@ body {
   width: 86px;
   height: 86px;
   border-radius: 14px;
-  border: 1px solid rgba(233, 183, 44, 0.2);
+  border: none;
   background: rgba(0, 0, 0, 0.22);
   display: flex;
   align-items: center;
