@@ -15,7 +15,7 @@ export function getOtpDom() {
     copyToast: requireElement("copyToast"),
     copyHint: requireElement("copyHint"),
     progressBar: requireElement("progressBar"),
-    ringFg: requireElement("ringFg"),
+    countdownBox: requireElement("countdownBox"),
     ringText: requireElement("ringText"),
     submitBtn: requireElement("submitBtn"),
   };

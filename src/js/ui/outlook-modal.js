@@ -20,8 +20,8 @@ const TEXT = {
   detailDefaultTitle: "Nội dung thư",
   detailEmptyBody: "(Thư không có nội dung hiển thị.)",
   emailUnknown: "Không rõ email",
-  copyTitle: "Click để copy",
-  copied: "Copied",
+  copyTitle: "Bấm để sao chép",
+  copied: "Đã sao chép",
   noToken: "Thiếu access token.",
   loadToken: "Không thể lấy access token.",
   noMessages: "Không thể tải danh sách thư.",
@@ -273,22 +273,17 @@ function escapeHtml(text) {
     .replaceAll("'", "&#39;");
 }
 
-function renderMessageIntoFrame(iframe, subject, rawContent) {
-  const doc = iframe.contentWindow.document;
+function toPlainText(rawContent) {
   const content = String(rawContent || "");
-  const looksLikeHtml = /<\/?(html|body|div|table|p|span|br|a|h\d)\b/i.test(content);
+  const parsed = new DOMParser().parseFromString(content, "text/html");
+  const text = parsed.body?.textContent || "";
+  return text.replace(/\u00a0/g, " ").trim();
+}
 
-  doc.open();
-
-  if (looksLikeHtml) {
-    doc.write(content);
-  } else {
-    const safeSubject = escapeHtml(subject || TEXT.detailDefaultTitle);
-    const safeContent = escapeHtml(content || TEXT.detailEmptyBody);
-    doc.write(`<!doctype html><html><head><meta charset="UTF-8"><title>${safeSubject}</title><style>body{font-family:Inter,Segoe UI,system-ui,sans-serif;padding:16px;line-height:1.6;color:#111}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${safeContent}</pre></body></html>`);
-  }
-
-  doc.close();
+function renderMessageIntoFrame(iframe, subject, rawContent) {
+  const safeSubject = escapeHtml(subject || TEXT.detailDefaultTitle);
+  const safeContent = escapeHtml(toPlainText(rawContent) || TEXT.detailEmptyBody);
+  iframe.srcdoc = `<!doctype html><html><head><meta charset="UTF-8"><title>${safeSubject}</title><style>body{font-family:Manrope,Segoe UI,system-ui,sans-serif;padding:16px;line-height:1.6;color:#111}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${safeContent}</pre></body></html>`;
 }
 
 function buildMessageItem(message, index, email, state, onExpand) {
@@ -373,9 +368,11 @@ function buildMessageItem(message, index, email, state, onExpand) {
 }
 
 export function initOutlookModal() {
+  const navHomeBtn = document.getElementById("navHomeBtn");
   const nav2faBtn = document.getElementById("nav2faBtn");
   const mailBtn = document.getElementById("mailBtn");
   const pricingBtn = document.getElementById("pricingBtn");
+  const viewHome = document.getElementById("viewHome");
   const view2fa = document.getElementById("view2fa");
   const viewOutlook = document.getElementById("viewOutlook");
   const viewPricing = document.getElementById("viewPricing");
@@ -497,7 +494,7 @@ export function initOutlookModal() {
     }
 
     if (detailFrame) {
-      detailFrame.src = "about:blank";
+      detailFrame.srcdoc = "";
     }
   }
 
@@ -580,7 +577,7 @@ export function initOutlookModal() {
     const parsed = parsePastedCredentialPayload(payloadInput.value);
     if (!parsed.refreshToken) {
       const message = TEXT.noMailData;
-      setStatus(message, true);
+      setStatus("");
       setListNotice(message, true);
       return;
     }
@@ -600,7 +597,7 @@ export function initOutlookModal() {
       const messages = normalizeMessages(payload?.value || []);
       if (!messages.length) {
         const message = TEXT.noNew;
-        setStatus(message);
+        setStatus("");
         setListNotice(message);
         return;
       }
@@ -616,7 +613,7 @@ export function initOutlookModal() {
       setStatus(`Đã tải ${messages.length} thư.`);
     } catch (error) {
       const message = normalizeUiError(error);
-      setStatus(message, true);
+      setStatus("");
       setListNotice(message, true);
     } finally {
       state.isLoading = false;
@@ -625,21 +622,36 @@ export function initOutlookModal() {
     }
   }
 
+  let setActiveView = null;
+
   if (nav2faBtn && mailBtn && pricingBtn && view2fa && viewOutlook && viewPricing) {
-    const setActiveView = (nextView) => {
+    setActiveView = (nextView) => {
       setFullViewMode(nextView === "outlook");
       document.body.classList.toggle("pricing-view-mode", nextView === "pricing");
+      document.body.classList.toggle("twofa-view-mode", nextView === "2fa");
       if (nextView === "pricing") {
         syncHeaderOffset();
       }
 
+      if (navHomeBtn) {
+        navHomeBtn.classList.remove("active");
+      }
       nav2faBtn.classList.remove("active");
       mailBtn.classList.remove("active");
       pricingBtn.classList.remove("active");
 
+      if (viewHome) {
+        viewHome.style.display = "none";
+      }
       view2fa.style.display = "none";
       viewOutlook.style.display = "none";
       viewPricing.style.display = "none";
+
+      if (nextView === "home" && navHomeBtn && viewHome) {
+        navHomeBtn.classList.add("active");
+        viewHome.style.display = "";
+        return;
+      }
 
       if (nextView === "2fa") {
         nav2faBtn.classList.add("active");
@@ -657,6 +669,13 @@ export function initOutlookModal() {
       viewPricing.style.display = "flex";
     };
 
+    if (navHomeBtn && viewHome) {
+      navHomeBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        setActiveView("home");
+      });
+    }
+
     nav2faBtn.addEventListener("click", (event) => {
       event.preventDefault();
       setActiveView("2fa");
@@ -672,6 +691,23 @@ export function initOutlookModal() {
       setActiveView("pricing");
     });
   }
+
+  const quickViewTriggers = document.querySelectorAll("[data-go-view]");
+  quickViewTriggers.forEach((trigger) => {
+    trigger.addEventListener("click", (event) => {
+      if (!setActiveView) {
+        return;
+      }
+
+      const view = trigger.getAttribute("data-go-view");
+      if (!view) {
+        return;
+      }
+
+      event.preventDefault();
+      setActiveView(view);
+    });
+  });
 
   if (closeDetailBtn) {
     closeDetailBtn.addEventListener("click", closeDetailModal);

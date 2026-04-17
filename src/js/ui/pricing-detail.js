@@ -3,11 +3,11 @@ const PRICING_PRODUCTS = {
     title: "ChatGPT Plus",
     image: "./assets/images/chatgptlogo.png",
     cycle: "1 tháng",
-    price: "110K - 180K",
+    price: "89K",
     status: "Có sẵn",
     contactUrl: "https://zalo.me/g/hlstya673",
     features: [
-      "TK ChatGPT Plus cấp dùng riêng: 110K/tháng",
+      "TK ChatGPT Plus cấp dùng riêng: 89K/tháng",
       "TK ChatGPT Plus chính chủ: 180K/tháng",
       "Có thể gia hạn dùng tiếp",
       "BẢO HÀNH FULL-TIME",
@@ -16,13 +16,13 @@ const PRICING_PRODUCTS = {
   gemini: {
     title: "Gemini AI Pro + 5TB Google One",
     image: "./assets/images/geminilogo.png",
-    cycle: "5 tháng - 12 tháng",
-    price: "100K - 300K",
+    cycle: "5 tháng",
+    price: "100K",
     status: "Có sẵn",
     contactUrl: "https://zalo.me/g/fqklod325",
     features: [
       "Gemini AI Pro + 5TB Google One ADD FAM chính chủ",
-      "Giá từ 100K - 300K",
+      "Giá từ 100K - 240K",
       "BẢO HÀNH FULL-TIME",
       "LƯU Ý: 5TB này được share cho 5 người nên dung lượng thực tế dùng khoảng 1TB.",
     ],
@@ -31,7 +31,7 @@ const PRICING_PRODUCTS = {
     title: "CapCut Pro Team",
     image: "./assets/images/capcutlogo.png",
     cycle: "1 tháng",
-    price: "40K",
+    price: "36K",
     status: "Có sẵn",
     contactUrl: "https://zalo.me/g/fqklod325",
     features: [
@@ -44,7 +44,7 @@ const PRICING_PRODUCTS = {
     title: "SuperGrok",
     image: "./assets/images/groklogo.png",
     cycle: "1 tháng",
-    price: "80K",
+    price: "150K",
     status: "Có sẵn",
     contactUrl: "https://zalo.me/g/hlstya673",
     features: [
@@ -68,11 +68,11 @@ const PRICING_PRODUCTS = {
     title: "Kling Pro",
     image: "./assets/images/logokling.png",
     cycle: "1 tháng",
-    price: "120K",
+    price: "135K",
     status: "Có sẵn",
     contactUrl: "https://zalo.me/g/fqklod325",
     features: [
-      "Kling Pro 1K-1K1 Credit, 120K/tháng",
+      "Kling Pro 1K-1K1 Credit, 135K/tháng",
       "BẢO HÀNH 24H",
     ],
   },
@@ -96,6 +96,7 @@ function renderProductDetail(productKey, product, refs) {
   refs.image.src = product.image;
   refs.image.alt = product.title;
   refs.image.setAttribute("data-product", productKey);
+  refs.brand.classList.toggle("is-kling", productKey === "kling");
   refs.cycle.textContent = product.cycle;
   refs.price.textContent = product.price;
   refs.status.textContent = product.status || "Có sẵn";
@@ -119,6 +120,7 @@ export function initPricingDetail() {
   const triggers = document.querySelectorAll(".pricing-readmore[data-product]");
 
   const refs = {
+    brand: document.querySelector(".pricing-detail-brand"),
     title: document.getElementById("pricingDetailTitle"),
     tagline: document.getElementById("pricingDetailTagline"),
     image: document.getElementById("pricingDetailImage"),
@@ -133,6 +135,7 @@ export function initPricingDetail() {
     !modal ||
     !closeX ||
     !closeBtn ||
+    !refs.brand ||
     !refs.title ||
     !refs.tagline ||
     !refs.image ||

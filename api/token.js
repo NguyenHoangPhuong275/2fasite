@@ -1,16 +1,23 @@
+import { applyCors, ensureTrustedBrowserRequest } from "./_security.js";
 const MS_TOKEN_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
 
 export default async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  const { originTrusted } = applyCors(req, res, {
+    methods: ["POST", "OPTIONS"],
+    headers: ["Content-Type"],
+  });
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
 
   if (req.method === "OPTIONS") {
-    return res.status(204).end();
+    return originTrusted ? res.status(204).end() : res.status(403).json({ error: "Forbidden origin" });
   }
 
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  if (!ensureTrustedBrowserRequest(req, res)) {
+    return;
   }
 
   const { client_id, refresh_token } = req.body || {};

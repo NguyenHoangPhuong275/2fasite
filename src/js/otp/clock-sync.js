@@ -9,6 +9,12 @@ export function createClockSync() {
   let timeOffset = 0;
   let lastSyncAt = 0;
   let syncingPromise = null;
+  const publicTimePreferredHostnames = new Set(["localhost", "127.0.0.1", "::1"]);
+
+  function shouldPreferPublicTime() {
+    const hostname = String(globalThis.location?.hostname || "").toLowerCase();
+    return publicTimePreferredHostnames.has(hostname);
+  }
 
   async function fetchWithTimeout(url, init = {}) {
     const controller = new AbortController();
@@ -83,8 +89,8 @@ export function createClockSync() {
     const day = Number(data.day);
     const hour = Number(data.hour);
     const minute = Number(data.minute);
-    const second = Number(data.seconds);
-    const ms = Number(data.milliSeconds);
+    const second = Number(data.seconds ?? data.second);
+    const ms = Number(data.milliSeconds ?? data.milliseconds ?? data.millisecond ?? 0);
     const serverTime = Date.UTC(year, month - 1, day, hour, minute, second, ms);
 
     if (!Number.isFinite(serverTime)) {
@@ -109,15 +115,20 @@ export function createClockSync() {
     }
 
     syncingPromise = (async () => {
+      const syncStrategies = shouldPreferPublicTime()
+        ? [syncFromPublicTimeApi, syncFromServerApi]
+        : [syncFromServerApi, syncFromPublicTimeApi];
+
       try {
-        await syncFromServerApi();
-      } catch {
-        try {
-          await syncFromPublicTimeApi();
-        } catch {
-          if (!lastSyncAt) {
-            timeOffset = 0;
+        for (const strategy of syncStrategies) {
+          try {
+            await strategy();
+            return;
+          } catch {
           }
+        }
+        if (!lastSyncAt) {
+          timeOffset = 0;
         }
       } finally {
         syncingPromise = null;

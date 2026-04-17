@@ -1,5 +1,5 @@
-const LEGACY_WELCOME_HIDE_KEY = "dovie2fa:welcome-hidden-until";
-const WELCOME_HIDE_KEY = "dovie2fa:welcome-hide-optin-until-v2";
+const LEGACY_WELCOME_HIDE_KEY = "dovieshop:welcome-hidden-until";
+const WELCOME_HIDE_KEY = "dovieshop:welcome-hide-optin-until-v2";
 const WELCOME_HIDE_DURATION_MS = 24 * 60 * 60 * 1000;
 const WELCOME_OPEN_DELAY_MS = 180;
 

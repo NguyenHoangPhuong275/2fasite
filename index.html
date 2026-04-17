@@ -1,19 +1,17 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="vi">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DOVIE2FA</title>
-    <meta name="description" content="Dong Vy 2FA - Xác thực 2FA" />
+  <title>DOVIESHOP</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Inter:wght@400;500;600;700;800&display=swap&subset=vietnamese"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&display=swap&subset=vietnamese" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
   <link rel="stylesheet" href="./src/css/style.css" />
   <link rel="icon" type="image/png" href="./assets/images/favicon.png" />
-  <script defer src="https://cdn.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js" integrity="sha384-rFUkwG+rUMD/wEADnQl6+bR2/HK5vGb/z3mhxlm0RiZn8Pu87oE3boiM62B/5Fv7" crossorigin="anonymous"></script>
   <script type="module" src="./src/js/script.js"></script>
   <script>
     window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
@@ -30,112 +28,412 @@
   <div class="noise"></div>
 
   <header class="site-header">
-    <div class="site-header-container">
+    <div class="site-header-container container-fluid">
       <div class="site-logo">
-        <img src="./assets/images/logo.png" alt="DoVie2FA" />
-        <span>DOVIE2FA</span>
+        <img src="./assets/images/logo.png" alt="DoVieShop" />
+        <span>DOVIESHOP</span>
       </div>
+
       <div class="menu-container">
         <button id="menuToggle" class="menu-toggle" type="button" aria-controls="siteNav" aria-expanded="false">
           MENU
         </button>
         <nav id="siteNav" class="site-nav">
-          <a href="#" id="nav2faBtn" class="nav-link active">2FA</a>
-          <a href="#" id="mailBtn" class="nav-link">OUTLOOK</a>
+          <a href="#" id="navHomeBtn" class="nav-link active">TRANG CHỦ</a>
+          <a href="#" id="nav2faBtn" class="nav-link">LẤY 2FA</a>
+          <a href="#" id="mailBtn" class="nav-link">ĐỌC HOTMAIL</a>
           <a href="#" id="pricingBtn" class="nav-link">BẢNG GIÁ AI</a>
           <a href="#" id="contactBtn" class="nav-link">LIÊN HỆ</a>
         </nav>
       </div>
-      <div class="header-actions">
-        <button id="themeToggleBtn" class="theme-toggle-btn" type="button" aria-label="Chuyển giao diện">
-          <span class="theme-toggle-icon" aria-hidden="true">☀</span>
-        </button>
-      </div>
+
     </div>
   </header>
 
-  <div id="view2fa" class="app-wrap">
-    <div class="card-outer">
-      <div class="card-inner">
-        <header class="header">
-          <div class="logo-area">
-            <div class="logo-icon">
-              <img src="./assets/images/logo.png" alt="DoVie2FA" />
-            </div>
-            <div class="app-title">DOVIE2FA</div>
-          </div>
-          <div class="badge-live">
-            <span class="badge-dot"></span>
-            <span>Live</span>
-          </div>
-        </header>
+  <main class="workspace">
+    <section id="viewHome" class="view-pane home-wrap">
+      <div class="panel-shell home-panel">
+        <div class="row g-4 align-items-stretch">
+          <div class="col-12">
+            <div class="home-hero">
+              <div class="home-hero-top">
+                <h1><span class="home-led-brand">DOVIESHOP</span> cung cấp tài khoản AI</h1>
+                <p>DOVIESHOP cung cấp tài khoản AI giá rẻ hơn mua trực tiếp, hỗ trợ kích hoạt nhanh, BẢO HÀNH RÕ RÀNG.</p>
+              </div>
 
-        <div class="input-section">
-          <div class="input-row">
-            <input id="rawInput" class="secret-input" type="text" placeholder="Nhập chuỗi 2FA...."
-             
-              autocomplete="off" spellcheck="false" />
-            <button id="submitBtn" class="submit-btn" type="button" title="Xác nhận">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
+              <div class="home-actions">
+                <button type="button" class="btn btn-outline-accent" data-go-view="pricing">Xem bảng giá</button>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div id="otpSection" class="otp-section">
-          <div id="otpContainer" class="otp-container" title="Click để copy">
-            <div id="otpDigits" class="otp-digits">
-              <div class="otp-digit">-</div>
-              <div class="otp-digit">-</div>
-              <div class="otp-digit">-</div>
-              <div class="otp-digit-sep"></div>
-              <div class="otp-digit">-</div>
-              <div class="otp-digit">-</div>
-              <div class="otp-digit">-</div>
-            </div>
-            <div id="copyToast" class="copy-toast">Đã copy!</div>
+        <div class="home-grid row g-3 mt-1">
+          <div class="col-md-6">
+            <article class="home-feature-card">
+              <h3>Lấy mã 2FA</h3>
+              <p>Dán chuỗi 2FA của bạn vào đây để lấy mã.</p>
+              <button type="button" class="btn btn-sm btn-outline-accent" data-go-view="2fa">Lấy mã 2FA</button>
+            </article>
           </div>
-
-          <div class="ring-wrap">
-            <svg class="ring-svg" viewBox="0 0 52 52" aria-hidden="true">
-              <defs>
-                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="var(--emerald-400)" />
-                  <stop offset="50%" stop-color="var(--cyan-400)" />
-                  <stop offset="100%" stop-color="var(--sky-400)" />
-                </linearGradient>
-              </defs>
-              <circle class="ring-bg" cx="26" cy="26" r="22" />
-              <circle id="ringFg" class="ring-fg" cx="26" cy="26" r="22" stroke-dasharray="138.23"
-                stroke-dashoffset="0" />
-            </svg>
-            <div id="ringText" class="ring-text">--</div>
+          <div class="col-md-6">
+            <article class="home-feature-card">
+              <h3>Đọc Hotmail</h3>
+              <p>Dán dữ liệu theo định dạng hotmail|password|refresh_token|device_id để đọc thư.</p>
+              <button type="button" class="btn btn-sm btn-outline-accent" data-go-view="outlook">Đọc Hotmail</button>
+            </article>
           </div>
         </div>
 
-        <div id="copyHint" class="copy-hint">Bấm vào mã để copy</div>
-        <div class="progress-track">
-          <div id="progressBar" class="progress-fill"></div>
+        <section class="home-featured" aria-label="Sản phẩm nổi bật">
+          <span class="home-featured-label">Sản phẩm nổi bật</span>
+          <div class="home-featured-products">
+            <article class="pricing-card home-featured-card" data-product="gpt">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/chatgptlogo.png" alt="ChatGPT Plus" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">ChatGPT</span>
+                <span class="pricing-tier-badge">Plus</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">89K</strong>
+                </div>
+                <p class="pricing-note">Sản phẩm nổi bật</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-go-view="pricing">Xem chi tiết</button>
+              </div>
+            </article>
+
+            <article class="pricing-card home-featured-card" data-product="capcut">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/capcutlogo.png" alt="CapCut Pro Team" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">CapCut</span>
+                <span class="pricing-tier-badge">Pro</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">36K</strong>
+                </div>
+                <p class="pricing-note">Sản phẩm nổi bật</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-go-view="pricing">Xem chi tiết</button>
+              </div>
+            </article>
+
+            <article class="pricing-card home-featured-card" data-product="veo3">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/logoveo3.png" alt="Veo 3" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">Veo 3</span>
+                <span class="pricing-tier-badge">Ultra</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">50K</strong>
+                </div>
+                <p class="pricing-note">Sản phẩm nổi bật</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-go-view="pricing">Xem chi tiết</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="view2fa" class="view-pane app-wrap" style="display: none;">
+      <div class="card-outer">
+        <div class="card-inner">
+          <header class="header">
+            <div class="logo-area">
+              <div class="logo-icon">
+                <img src="./assets/images/logo.png" alt="DoVieShop" />
+              </div>
+              <div>
+                <div class="app-title">DOVIESHOP</div>
+              </div>
+            </div>
+
+            <div id="countdownBox" class="countdown-box header-timer is-hidden">
+              <span class="countdown-icon" aria-hidden="true"></span>
+              <span id="ringText" class="ring-text">--</span>
+            </div>
+          </header>
+
+          <div class="input-section">
+            <div class="input-row">
+              <input id="rawInput" class="secret-input" type="text" placeholder="Nhập chuỗi: ABC26B...." autocomplete="off" spellcheck="false" />
+              <button id="submitBtn" class="submit-btn" type="button" title="Xác nhận">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="9 18 15 12 9 6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="otpSection" class="otp-section">
+            <div id="otpContainer" class="otp-container" title="Bấm để sao chép">
+              <div id="otpDigits" class="otp-digits">
+                <div class="otp-digit">-</div>
+                <div class="otp-digit">-</div>
+                <div class="otp-digit">-</div>
+                <div class="otp-digit-sep"></div>
+                <div class="otp-digit">-</div>
+                <div class="otp-digit">-</div>
+                <div class="otp-digit">-</div>
+              </div>
+              <div id="copyToast" class="copy-toast">Đã sao chép!</div>
+              <div id="copyHint" class="copy-hint">Bấm vào mã để sao chép</div>
+            </div>
+          </div>
+          <div class="progress-track">
+            <div id="progressBar" class="progress-fill"></div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+
+    <section id="viewOutlook" class="view-pane outlook-wrap" style="display: none;">
+      <div class="panel-shell outlook-container">
+        <div class="panel-head">
+          <h2 class="modal-title m-0">Đọc Hotmail</h2>
+        </div>
+
+        <div class="mail-intake-shell">
+          <form class="mail-form" onsubmit="return false;">
+            <div class="mail-form-row">
+              <textarea id="mailPayload" class="mail-textarea" placeholder="email|password|refresh_token|device_id" autocomplete="off"></textarea>
+              <button id="loadMailBtn" class="mail-refresh-btn" type="button">Đọc thư</button>
+            </div>
+          </form>
+
+          <div id="mailStatus" class="mail-status" aria-live="polite"></div>
+        </div>
+
+        <div class="outlook-list-shell">
+          <div class="outlook-list-container">
+            <div id="mailList" class="outlook-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="viewPricing" class="view-pane pricing-wrap" style="display: none;">
+      <div class="panel-shell outlook-container pricing-container">
+        <div class="panel-head">
+          <h2 class="modal-title pricing-title m-0">Bảng giá tài khoản AI</h2>
+          <p class="pricing-subtitle">Giá có thể thay đổi theo thời điểm. Liên hệ trực tiếp để chốt giá chính xác.</p>
+        </div>
+
+        <div class="pricing-scroll">
+          <div class="pricing-grid" aria-label="Bảng giá các loại AI">
+            <article class="pricing-card" data-product="gpt">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/chatgptlogo.png" alt="ChatGPT Plus" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">ChatGPT</span>
+                <span class="pricing-tier-badge">Plus</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">110K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="gpt">Đọc thêm</button>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-product="gemini">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/geminilogo.png" alt="Gemini Pro" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">Gemini</span>
+                <span class="pricing-tier-badge">Pro</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">5 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">100K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="gemini">Đọc thêm</button>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-product="capcut">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/capcutlogo.png" alt="CapCut Pro Team" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">CapCut</span>
+                <span class="pricing-tier-badge">Pro</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">40K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="capcut">Đọc thêm</button>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-product="grok">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/groklogo.png" alt="Grok" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">Grok</span>
+                <span class="pricing-tier-badge">Pro</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">150K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="grok">Đọc thêm</button>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-product="veo3">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/logoveo3.png" alt="Veo 3" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">Veo 3</span>
+                <span class="pricing-tier-badge">Ultra</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">50K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="veo3">Đọc thêm</button>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-product="kling">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/logokling.png" alt="Kling" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">Kling</span>
+                <span class="pricing-tier-badge">Pro</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">135K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="kling">Đọc thêm</button>
+              </div>
+            </article>
+
+            <article class="pricing-card" data-product="antigravity">
+              <div class="pricing-card-media">
+                <div class="pricing-logo-box">
+                  <img src="./assets/images/logoantigravity.png" alt="Antigravity" loading="lazy" class="pricing-logo-image" />
+                </div>
+                <span class="pricing-chip">Antigravity</span>
+                <span class="pricing-tier-badge">Ultra</span>
+              </div>
+              <div class="pricing-card-body">
+                <div class="pricing-meta">
+                  <span class="pricing-label">Thời hạn</span>
+                  <span class="pricing-cycle">1 tháng</span>
+                </div>
+                <div class="pricing-meta">
+                  <span class="pricing-label">Giá</span>
+                  <strong class="pricing-card-price">350K</strong>
+                </div>
+                <p class="pricing-note">Có sẵn</p>
+              </div>
+              <div class="pricing-card-actions">
+                <button type="button" class="pricing-readmore" data-product="antigravity">Đọc thêm</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <div id="contactModal" class="modal-overlay">
     <div class="modal-content">
+      <button class="modal-close" id="closeContactBtn" aria-label="Đóng">×</button>
       <h2 class="modal-title">Liên hệ</h2>
       <div class="modal-body">
-        <p style="margin-bottom: 24px; font-size: 0.95rem;">Nếu có thắc mắc hoặc cần hỗ trợ, vui lòng liên hệ:</p>
+        <p class="contact-intro">Nếu cần hỗ trợ, vui lòng liên hệ qua các kênh sau:</p>
 
         <div class="contact-list">
           <a href="https://t.me/Thaovie6886" target="_blank" rel="noopener noreferrer" class="contact-item">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M21.2 4.4L2.4 10.8c-.6.2-.6 1.1 0 1.3l4.5 1.7 1.7 5.4c.2.5.8.7 1.2.4l2.5-2 4.3 3.2c.5.4 1.2.1 1.3-.5L21.8 5.3c.2-.6-.3-1.1-.6-.9z">
-              </path>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.2 4.4L2.4 10.8c-.6.2-.6 1.1 0 1.3l4.5 1.7 1.7 5.4c.2.5.8.7 1.2.4l2.5-2 4.3 3.2c.5.4 1.2.1 1.3-.5L21.8 5.3c.2-.6-.3-1.1-.6-.9z"></path>
               <path d="M8.6 13.8l8.4-6.2"></path>
             </svg>
             <div class="contact-info">
@@ -145,11 +443,8 @@
           </a>
 
           <a href="https://t.me/haqfuong2075" target="_blank" rel="noopener noreferrer" class="contact-item">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M21.2 4.4L2.4 10.8c-.6.2-.6 1.1 0 1.3l4.5 1.7 1.7 5.4c.2.5.8.7 1.2.4l2.5-2 4.3 3.2c.5.4 1.2.1 1.3-.5L21.8 5.3c.2-.6-.3-1.1-.6-.9z">
-              </path>
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.2 4.4L2.4 10.8c-.6.2-.6 1.1 0 1.3l4.5 1.7 1.7 5.4c.2.5.8.7 1.2.4l2.5-2 4.3 3.2c.5.4 1.2.1 1.3-.5L21.8 5.3c.2-.6-.3-1.1-.6-.9z"></path>
               <path d="M8.6 13.8l8.4-6.2"></path>
             </svg>
             <div class="contact-info">
@@ -159,8 +454,7 @@
           </a>
 
           <a href="https://zalo.me/g/hlstya673" target="_blank" rel="noopener noreferrer" class="contact-item">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -173,8 +467,7 @@
           </a>
 
           <a href="https://zalo.me/g/fqklod325" target="_blank" rel="noopener noreferrer" class="contact-item">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
               <circle cx="9" cy="7" r="4"></circle>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -187,213 +480,12 @@
           </a>
         </div>
       </div>
-
-      <div class="modal-footer" style="margin-top: 24px;">
-        <button id="closeContactBtn" class="btn-close-modal" type="button">Đóng</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="viewOutlook" class="outlook-wrap" style="display: none;">
-    <div class="outlook-container">
-      <h2 class="modal-title" style="margin-bottom: 20px;">Đọc mail Outlook</h2>
-      <form class="mail-form" onsubmit="return false;">
-        <div style="display: flex; gap: 12px; align-items: stretch;">
-          <textarea id="mailPayload" class="mail-textarea" style="margin-bottom: 0;"
-            placeholder="email|password|refresh_token|device_id" autocomplete="off"></textarea>
-          <button id="loadMailBtn" class="mail-refresh-btn" style="flex-shrink: 0; min-width: 120px;"
-            type="button">Đọc thư</button>
-        </div>
-      </form>
-      <div id="mailStatus" class="mail-status" aria-live="polite"></div>
-
-      <div class="outlook-list-container">
-        <div id="mailList" class="outlook-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <div id="viewPricing" class="outlook-wrap" style="display: none;">
-    <div class="outlook-container">
-      <h2 class="modal-title pricing-title">Bảng giá tài khoản AI</h2>
-      <p class="pricing-subtitle">Giá có thể thay đổi theo thời điểm. Liên hệ trực tiếp để chốt giá chính xác.</p>
-      <div class="pricing-scroll">
-        <div class="pricing-grid" aria-label="Bảng giá các loại AI">
-        <article class="pricing-card" data-product="gpt">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/chatgptlogo.png" alt="ChatGPT Plus" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">ChatGPT</span>
-            <span class="pricing-tier-badge">Plus</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">1 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">110K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="gpt">Đọc thêm</button>
-          </div>
-        </article>
-
-        <article class="pricing-card" data-product="gemini">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/geminilogo.png" alt="Gemini Pro" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">Gemini</span>
-            <span class="pricing-tier-badge">Pro</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">5 tháng - 12 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">100K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="gemini">Đọc thêm</button>
-          </div>
-        </article>
-
-        <article class="pricing-card" data-product="capcut">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/capcutlogo.png" alt="CapCut Pro Team" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">CapCut</span>
-            <span class="pricing-tier-badge">Pro</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">1 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">40K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="capcut">Đọc thêm</button>
-          </div>
-        </article>
-
-        <article class="pricing-card" data-product="grok">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/groklogo.png" alt="Grok" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">Grok</span>
-            <span class="pricing-tier-badge">Pro</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">1 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">80K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="grok">Đọc thêm</button>
-          </div>
-        </article>
-
-        <article class="pricing-card" data-product="veo3">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/logoveo3.png" alt="Veo 3" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">Veo 3</span>
-            <span class="pricing-tier-badge">Ultra</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">1 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">50K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="veo3">Đọc thêm</button>
-          </div>
-        </article>
-
-        <article class="pricing-card" data-product="kling">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/logokling.png" alt="Kling" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">Kling</span>
-            <span class="pricing-tier-badge">Pro</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">1 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">120K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="kling">Đọc thêm</button>
-          </div>
-        </article>
-
-        <article class="pricing-card" data-product="antigravity">
-          <div class="pricing-card-media">
-            <div class="pricing-logo-box">
-              <img src="./assets/images/logoantigravity.png" alt="Antigravity" loading="lazy" class="pricing-logo-image" />
-            </div>
-            <span class="pricing-chip">Antigravity</span>
-            <span class="pricing-tier-badge">Ultra</span>
-          </div>
-          <div class="pricing-card-body">
-            <div class="pricing-meta">
-              <span class="pricing-label">Thời hạn</span>
-              <span class="pricing-cycle">1 tháng</span>
-            </div>
-            <div class="pricing-meta">
-              <span class="pricing-label">Giá</span>
-              <strong class="pricing-card-price">350K</strong>
-            </div>
-            <p class="pricing-note">Có sẵn</p>
-          </div>
-          <div class="pricing-card-actions">
-            <button type="button" class="pricing-readmore" data-product="antigravity">Đọc thêm</button>
-          </div>
-        </article>
-        </div>
-      </div>
     </div>
   </div>
 
   <div id="pricingDetailModal" class="modal-overlay">
     <div class="modal-content pricing-detail-modal">
-                  <button id="pricingDetailCloseX" class="modal-close" aria-label="Đóng">×</button>
+      <button id="pricingDetailCloseX" class="modal-close" aria-label="Đóng">×</button>
       <div class="pricing-detail-head">
         <div class="pricing-detail-brand">
           <img id="pricingDetailImage" src="./assets/images/logo.png" alt="AI Product" />
@@ -441,34 +533,41 @@
         <button id="closeMailDetailBtn" class="mail-detail-close-btn" type="button">Đóng</button>
       </div>
       <div class="mail-detail-body">
-        <iframe id="mailDetailFrame" class="mail-detail-frame" sandbox="allow-same-origin"></iframe>
+        <iframe id="mailDetailFrame" class="mail-detail-frame" sandbox></iframe>
       </div>
     </div>
   </div>
 
   <div id="welcomeModal" class="modal-overlay modal-top-drop">
     <div class="modal-content welcome-modal-box">
-                  <button class="modal-close" id="closeWelcomeModalX" aria-label="Đóng">×</button>
+      <button class="modal-close" id="closeWelcomeModalX" aria-label="Đóng">×</button>
       <div class="welcome-modal-inner">
         <div class="welcome-icon-container">
-          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8"
-            stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
         </div>
-                        <h2 class="welcome-modal-title">Chào mừng đến <strong>DOVIESHOP!</strong>
-        </br> Đây là trang lấy mã xác thực của <strong>DOVIESHOP!</strong>
-        </h2>
-                        <p class="welcome-modal-text">Hiện tại, bên tụi em có các tài khoản AI giá rẻ, anh/chị tham gia vào nhóm bên dưới để biết thêm thông tin. Xin cảm ơn!</p>
+        <h2 class="welcome-modal-title">Chào mừng đến với <strong>DOVIESHOP</strong></h2>
+        <p class="welcome-modal-text">Hiện tại, bên tụi em có các tài khoản AI giá rẻ, anh/chị tham gia vào nhóm bên dưới để biết thêm thông tin. Xin cảm ơn!</p>
         <div class="welcome-groups welcome-groups-row">
           <a href="https://zalo.me/g/hlstya673" target="_blank" rel="noopener noreferrer" class="welcome-group-btn">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
             <span>Nhóm 1</span>
           </a>
           <a href="https://zalo.me/g/fqklod325" target="_blank" rel="noopener noreferrer" class="welcome-group-btn">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
             <span>Nhóm 2</span>
           </a>
         </div>

@@ -1,8 +1,14 @@
-import { CLOCK_SYNC_INTERVAL_MS } from "./constants.js";
-import { getOtpDom } from "./dom.js";
-import { createOtpView } from "./view.js";
-import { parseInputToTotp } from "./totp.js";
 import { createClockSync } from "./clock-sync.js";
+import { getOtpDom } from "./dom.js";
+import {
+  OTP_COPY_HINT_TEXT,
+  OTP_DEFAULT_PERIOD_SECONDS,
+  OTP_EMPTY_CODE,
+  OTP_INPUT_PLACEHOLDER_TEXT,
+  OTP_INVALID_SECRET_TEXT,
+} from "./constants.js";
+import { parseInputToTotp } from "./totp.js";
+import { createOtpView } from "./view.js";
 
 export function initOtpApp() {
   const dom = getOtpDom();
@@ -13,8 +19,8 @@ export function initOtpApp() {
   let currentCode = "";
   let lastStep = -1;
   let copyTimeout = null;
-  let rafId = 0;
-  let lastRafSyncCheck = 0;
+  let tickerId = 0;
+  let freshTimerId = 0;
 
   function resetOtpState() {
     currentTotp = null;
@@ -22,6 +28,7 @@ export function initOtpApp() {
     lastStep = -1;
     view.renderEmptyDigits();
     view.setIdleView();
+    dom.copyHint.textContent = OTP_COPY_HINT_TEXT;
   }
 
   function analyzeNow(force = false) {
@@ -32,10 +39,10 @@ export function initOtpApp() {
     }
 
     const now = clockSync.getSyncedNow();
-    const periodMs = (currentTotp.period || 30) * 1000;
+    const periodMs = (currentTotp.period || OTP_DEFAULT_PERIOD_SECONDS) * 1000;
     const elapsed = ((now % periodMs) + periodMs) % periodMs;
     const remainMs = periodMs - elapsed;
-    const remainSec = remainMs / 1000;
+    const remainSec = Math.max(0, Math.ceil(remainMs / 1000));
     const step = Math.floor(now / periodMs);
 
     if (force || step !== lastStep) {
@@ -49,38 +56,34 @@ export function initOtpApp() {
     view.setOtpStateClass(remainSec);
   }
 
-  function sanitizeInput(value) {
-    const trimmed = value.trim();
-    if (/^otpauth:\/\//i.test(trimmed)) {
-      return trimmed;
-    }
-    return trimmed.replace(/[^A-Za-z0-9=]/g, "");
-  }
-
   async function onInputSubmit() {
-    const sanitized = sanitizeInput(dom.rawInput.value);
+    const sanitized = dom.rawInput.value.trim();
     dom.rawInput.value = sanitized;
+
     if (!sanitized) {
       resetOtpState();
       return;
     }
 
     try {
+      dom.copyHint.textContent = OTP_COPY_HINT_TEXT;
       currentTotp = parseInputToTotp(sanitized);
       lastStep = -1;
-      await clockSync.ensureFresh();
       analyzeNow(true);
-    } catch {
+      void clockSync.ensureFresh().then(() => {
+        analyzeNow(true);
+      });
+    } catch (error) {
       resetOtpState();
+      dom.copyHint.textContent = error instanceof Error && error.message
+        ? error.message
+        : OTP_INVALID_SECRET_TEXT;
+      dom.copyHint.classList.add("visible");
     }
   }
 
   async function onCopyClick() {
-    if (!currentTotp) {
-      return;
-    }
-
-    if (!currentCode || currentCode === "------") {
+    if (!currentTotp || !currentCode || currentCode === OTP_EMPTY_CODE) {
       return;
     }
 
@@ -98,19 +101,24 @@ export function initOtpApp() {
   }
 
   function startLoop() {
-    cancelAnimationFrame(rafId);
+    if (tickerId) {
+      cancelAnimationFrame(tickerId);
+    }
 
-    const tick = (ts) => {
-      if (ts - lastRafSyncCheck > 1000) {
-        lastRafSyncCheck = ts;
-        void clockSync.ensureFresh();
-      }
-
+    const tick = () => {
       analyzeNow();
-      rafId = requestAnimationFrame(tick);
+      tickerId = requestAnimationFrame(tick);
     };
 
-    rafId = requestAnimationFrame(tick);
+    tick();
+
+    if (freshTimerId) {
+      clearInterval(freshTimerId);
+    }
+
+    freshTimerId = setInterval(() => {
+      void clockSync.ensureFresh();
+    }, 1000);
   }
 
   dom.submitBtn.addEventListener("click", () => {
@@ -129,19 +137,15 @@ export function initOtpApp() {
   dom.rawInput.addEventListener("paste", (event) => {
     event.preventDefault();
     const pasted = (event.clipboardData || window.clipboardData).getData("text");
-    const sanitized = sanitizeInput(pasted);
-    dom.rawInput.value = sanitized;
+    dom.rawInput.value = pasted.trim();
   });
 
   dom.otpContainer.addEventListener("click", () => {
     void onCopyClick();
   });
 
-  setInterval(() => {
-    void clockSync.syncClock();
-  }, CLOCK_SYNC_INTERVAL_MS);
-
   resetOtpState();
+  dom.rawInput.placeholder = OTP_INPUT_PLACEHOLDER_TEXT;
   void clockSync.syncClock();
   startLoop();
 }
