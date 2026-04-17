@@ -1243,17 +1243,18 @@ body {
   width: 90px;
   height: 90px;
   border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  border: 1px solid rgba(233, 183, 44, 0.2);
+  background: rgba(0, 0, 0, 0.22);
   padding: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.pricing-card[data-product="kling"] .pricing-logo-box {
-  border: 1px solid rgba(233, 183, 44, 0.2);
-  background: rgba(0, 0, 0, 0.26);
+.pricing-card[data-product="gpt"] .pricing-logo-image,
+.pricing-card[data-product="capcut"] .pricing-logo-image,
+.pricing-card[data-product="grok"] .pricing-logo-image {
+  filter: brightness(0) invert(1);
 }
 
 .pricing-card[data-product="gemini"] .pricing-logo-image {
@@ -1471,8 +1472,8 @@ body {
   width: 86px;
   height: 86px;
   border-radius: 14px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  border: 1px solid rgba(233, 183, 44, 0.2);
+  background: rgba(0, 0, 0, 0.22);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1480,9 +1481,10 @@ body {
   flex-shrink: 0;
 }
 
-.pricing-detail-brand.is-kling {
-  border: 1px solid rgba(233, 183, 44, 0.18);
-  background: rgba(0, 0, 0, 0.24);
+.pricing-detail-brand img[data-product="gpt"],
+.pricing-detail-brand img[data-product="capcut"],
+.pricing-detail-brand img[data-product="grok"] {
+  filter: brightness(0) invert(1);
 }
 
 .pricing-detail-brand img {
