@@ -22,6 +22,22 @@ export function initOtpApp() {
   let tickerId = 0;
   let freshTimerId = 0;
 
+  function sanitizeSecretInput(rawValue) {
+    const trimmed = String(rawValue ?? "").trim();
+    if (!trimmed) {
+      return "";
+    }
+
+    if (/^otpauth:\/\//i.test(trimmed)) {
+      return trimmed;
+    }
+
+    const labeledSecretMatch = trimmed.match(/secret\s*[:=]\s*(.+)$/i);
+    const source = labeledSecretMatch ? labeledSecretMatch[1] : trimmed;
+
+    return source.replace(/[^A-Za-z0-9=]+/g, "").toUpperCase();
+  }
+
   function resetOtpState() {
     currentTotp = null;
     currentCode = "";
@@ -57,7 +73,7 @@ export function initOtpApp() {
   }
 
   async function onInputSubmit() {
-    const sanitized = dom.rawInput.value.trim();
+    const sanitized = sanitizeSecretInput(dom.rawInput.value);
     dom.rawInput.value = sanitized;
 
     if (!sanitized) {
@@ -137,7 +153,7 @@ export function initOtpApp() {
   dom.rawInput.addEventListener("paste", (event) => {
     event.preventDefault();
     const pasted = (event.clipboardData || window.clipboardData).getData("text");
-    dom.rawInput.value = pasted.trim();
+    dom.rawInput.value = sanitizeSecretInput(pasted);
   });
 
   dom.otpContainer.addEventListener("click", () => {
