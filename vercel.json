@@ -1,4 +1,8 @@
 {
+  "installCommand": "npm install",
+  "devCommand": "vite --host 127.0.0.1 --port %PORT%",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "headers": [
     {
       "source": "/(.*)",

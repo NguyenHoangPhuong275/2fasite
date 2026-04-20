@@ -302,7 +302,7 @@ function buildMessageItem(message, index, email, state, onExpand) {
     iconDiv.textContent = "OTP";
   } else if (lowerSubject.includes("gpt") || lowerSender.includes("gpt")) {
     iconDiv.textContent = "AI";
-  } else if (lowerSubject.includes("premium") || lowerSubject.includes("pro")) {
+  } else if (lowerSubject.includes("premium") || lowerSender.includes("pro")) {
     iconDiv.textContent = "PRO";
   } else {
     iconDiv.textContent = "MAIL";
@@ -499,7 +499,7 @@ export function initOutlookModal() {
     }
   }
 
-  function clearSensitiveState(options = {}) {
+  function clearSensitiveState() {
     state.accessToken = "";
     state.detailCache.clear();
 
