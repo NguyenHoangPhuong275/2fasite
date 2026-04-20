@@ -12,14 +12,9 @@
   <link rel="stylesheet" href="./src/css/style.css" />
   <link rel="icon" type="image/png" href="./assets/images/favicon.png" />
   <script defer src="https://cdn.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js" integrity="sha384-rFUkwG+rUMD/wEADnQl6+bR2/HK5vGb/z3mhxlm0RiZn8Pu87oE3boiM62B/5Fv7" crossorigin="anonymous"></script>
+  <script defer src="./src/js/telemetry.js"></script>
   <script type="module" src="./src/js/script.js"></script>
-  <script>
-    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  </script>
   <script defer src="/_vercel/insights/script.js"></script>
-  <script>
-    window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-  </script>
   <script defer src="/_vercel/speed-insights/script.js"></script>
 </head>
 
@@ -79,7 +74,7 @@
           <div class="col-md-6">
             <article class="home-feature-card">
               <h3>Đọc Hotmail</h3>
-              <p>Dán dữ liệu theo định dạng hotmail|password|refresh_token|device_id để đọc thư.</p>
+              <p>Dán dữ liệu tài khoản vào đây để đọc thư xác thực.</p>
               <button type="button" class="btn btn-sm btn-outline-accent" data-go-view="outlook">Đọc Hotmail</button>
             </article>
           </div>
@@ -223,9 +218,9 @@
         </div>
 
         <div class="mail-intake-shell">
-          <form class="mail-form" onsubmit="return false;">
+          <form class="mail-form">
             <div class="mail-form-row">
-              <textarea id="mailPayload" class="mail-textarea" placeholder="email|password|refresh_token|device_id" autocomplete="off"></textarea>
+              <textarea id="mailPayload" class="mail-textarea" placeholder="Dán dữ liệu tài khoản vào đây" autocomplete="off"></textarea>
               <button id="loadMailBtn" class="mail-refresh-btn" type="button">Đọc thư</button>
             </div>
           </form>

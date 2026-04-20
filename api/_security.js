@@ -1,4 +1,5 @@
 const LOOPBACK_HOSTNAMES = new Set(["localhost", "127.0.0.1", "::1", "[::1]"]);
+const RATE_LIMIT_STATE = new Map();
 
 function getHeader(req, name) {
   const value = req.headers?.[name];
@@ -68,6 +69,15 @@ function appendVaryOrigin(res) {
   }
 }
 
+function getClientIp(req) {
+  const forwardedFor = getHeader(req, "x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  return getHeader(req, "x-real-ip") || "unknown";
+}
+
 export function applyCors(req, res, options = {}) {
   const {
     methods = ["GET", "POST", "OPTIONS"],
@@ -93,8 +103,14 @@ export function ensureTrustedBrowserRequest(req, res) {
   const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS);
   const origin = getHeader(req, "origin");
   const referer = getHeader(req, "referer");
+  const secFetchSite = getHeader(req, "sec-fetch-site").toLowerCase();
   const trustedOrigin = origin ? isTrustedUrl(origin, req, allowedOrigins) : false;
   const trustedReferer = referer ? isTrustedUrl(referer, req, allowedOrigins) : false;
+
+  if (secFetchSite && !["same-origin", "same-site", "none"].includes(secFetchSite)) {
+    res.status(403).json({ error: "Forbidden origin" });
+    return false;
+  }
 
   if (trustedOrigin || trustedReferer) {
     return true;
@@ -102,4 +118,52 @@ export function ensureTrustedBrowserRequest(req, res) {
 
   res.status(403).json({ error: "Forbidden origin" });
   return false;
+}
+
+export function consumeRateLimit(req, options = {}) {
+  const {
+    bucket = "default",
+    windowMs = 60_000,
+    maxRequests = 5,
+  } = options;
+
+  const now = Date.now();
+  const clientIp = getClientIp(req);
+  const key = `${bucket}:${clientIp}`;
+  const entry = RATE_LIMIT_STATE.get(key);
+
+  for (const [currentKey, currentEntry] of RATE_LIMIT_STATE.entries()) {
+    if (now - currentEntry.windowStart >= windowMs) {
+      RATE_LIMIT_STATE.delete(currentKey);
+    }
+  }
+
+  if (!entry || now - entry.windowStart >= windowMs) {
+    RATE_LIMIT_STATE.set(key, {
+      count: 1,
+      windowStart: now,
+    });
+
+    return {
+      limited: false,
+      remaining: maxRequests - 1,
+      retryAfter: 0,
+    };
+  }
+
+  if (entry.count >= maxRequests) {
+    return {
+      limited: true,
+      remaining: 0,
+      retryAfter: Math.max(1, Math.ceil((entry.windowStart + windowMs - now) / 1000)),
+    };
+  }
+
+  entry.count += 1;
+
+  return {
+    limited: false,
+    remaining: Math.max(0, maxRequests - entry.count),
+    retryAfter: 0,
+  };
 }

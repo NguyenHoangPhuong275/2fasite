@@ -9,11 +9,13 @@ export function createClockSync() {
   let timeOffset = 0;
   let lastSyncAt = 0;
   let syncingPromise = null;
+  let lastSyncError = "";
   const publicTimePreferredHostnames = new Set(["localhost", "127.0.0.1", "::1"]);
 
   function shouldPreferPublicTime() {
     const hostname = String(globalThis.location?.hostname || "").toLowerCase();
-    return publicTimePreferredHostnames.has(hostname);
+    const protocol = String(globalThis.location?.protocol || "").toLowerCase();
+    return protocol === "http:" || publicTimePreferredHostnames.has(hostname);
   }
 
   async function fetchWithTimeout(url, init = {}) {
@@ -47,6 +49,7 @@ export function createClockSync() {
     }
 
     lastSyncAt = Date.now();
+    lastSyncError = "";
     return true;
   }
 
@@ -109,6 +112,10 @@ export function createClockSync() {
     return Date.now() + timeOffset;
   }
 
+  function hasAuthoritativeTime() {
+    return lastSyncAt > 0 && !lastSyncError;
+  }
+
   async function syncClock() {
     if (syncingPromise) {
       return syncingPromise;
@@ -116,20 +123,22 @@ export function createClockSync() {
 
     syncingPromise = (async () => {
       const syncStrategies = shouldPreferPublicTime()
-        ? [syncFromPublicTimeApi, syncFromServerApi]
+        ? [syncFromPublicTimeApi]
         : [syncFromServerApi, syncFromPublicTimeApi];
 
       try {
         for (const strategy of syncStrategies) {
           try {
             await strategy();
-            return;
+            return true;
           } catch {
           }
         }
+        lastSyncError = "CLOCK_SYNC_FAILED";
         if (!lastSyncAt) {
           timeOffset = 0;
         }
+        return false;
       } finally {
         syncingPromise = null;
       }
@@ -140,12 +149,16 @@ export function createClockSync() {
 
   async function ensureFresh() {
     if (!lastSyncAt || Date.now() - lastSyncAt > CLOCK_SYNC_MAX_AGE_MS) {
-      await syncClock();
+      return syncClock();
     }
+
+    return hasAuthoritativeTime();
   }
 
   return {
+    getLastSyncError: () => lastSyncError,
     getSyncedNow,
+    hasAuthoritativeTime,
     syncClock,
     ensureFresh,
   };

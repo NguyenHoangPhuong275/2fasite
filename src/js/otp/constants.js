@@ -1,10 +1,11 @@
 export const CLOCK_SYNC_MAX_AGE_MS = 5 * 60 * 1000;
 export const CLOCK_TIMEOUT_MS = 3500;
 export const SERVER_TIME_ENDPOINT = "/api/time";
-export const PUBLIC_TIME_API_ENDPOINT = "https://www.timeapi.io/api/Time/current/zone?timeZone=UTC";
+export const PUBLIC_TIME_API_ENDPOINT = "https://timeapi.io/api/time/current/zone?timeZone=UTC";
 
 export const OTP_EMPTY_CODE = "------";
 export const OTP_DEFAULT_PERIOD_SECONDS = 30;
+export const OTP_CLOCK_SYNC_ERROR_TEXT = "Không thể đồng bộ giờ chuẩn. Kiểm tra mạng hoặc đồng bộ lại giờ hệ thống.";
 
 export const OTP_COPY_HINT_TEXT = "Bấm vào mã để sao chép";
 export const OTP_INPUT_PLACEHOLDER_TEXT = "Nhập chuỗi: ABC26B....";

@@ -1,8 +1,8 @@
 const TOKEN_ENDPOINT = "/api/token";
-const OUTLOOK_MESSAGES_ENDPOINT = "https://outlook.office.com/api/v2.0/me/messages";
 const GRAPH_MESSAGES_ENDPOINT = "https://graph.microsoft.com/v1.0/me/messages";
 const REQUEST_TIMEOUT_MS = 15000;
 const MESSAGE_LIMIT = 12;
+const ACCESS_TOKEN_TTL_MS = 5 * 60 * 1000;
 
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const EMAIL_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
@@ -396,8 +396,9 @@ export function initOutlookModal() {
   const state = {
     detailCache: new Map(),
     accessToken: "",
-    messagesEndpoint: OUTLOOK_MESSAGES_ENDPOINT,
+    messagesEndpoint: GRAPH_MESSAGES_ENDPOINT,
     isLoading: false,
+    clearTimer: 0,
     async loadDetail(messageId) {
       if (!state.accessToken) {
         throw new Error(TEXT.noToken);
@@ -498,16 +499,41 @@ export function initOutlookModal() {
     }
   }
 
+  function clearSensitiveState(options = {}) {
+    state.accessToken = "";
+    state.detailCache.clear();
+
+    if (state.clearTimer) {
+      window.clearTimeout(state.clearTimer);
+      state.clearTimer = 0;
+    }
+  }
+
+  function scheduleSensitiveStateClear() {
+    if (state.clearTimer) {
+      window.clearTimeout(state.clearTimer);
+    }
+
+    state.clearTimer = window.setTimeout(() => {
+      clearSensitiveState();
+    }, ACCESS_TOKEN_TTL_MS);
+  }
+
   async function getAccessToken(clientId, refreshToken) {
+    const requestBody = {
+      refresh_token: refreshToken,
+    };
+
+    if (clientId) {
+      requestBody.client_id = clientId;
+    }
+
     const payload = await requestJson(TOKEN_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        client_id: clientId,
-        refresh_token: refreshToken,
-      }),
+      body: JSON.stringify(requestBody),
     });
 
     const accessToken = typeof payload?.access_token === "string" ? payload.access_token.trim() : "";
@@ -528,22 +554,12 @@ export function initOutlookModal() {
     });
   }
 
-  async function fetchMessagesWithFallback(accessToken) {
-    const endpoints = [OUTLOOK_MESSAGES_ENDPOINT, GRAPH_MESSAGES_ENDPOINT];
-    let firstError = null;
-
-    for (const endpoint of endpoints) {
-      try {
-        const payload = await fetchMessagesByEndpoint(accessToken, endpoint);
-        return { endpoint, payload };
-      } catch (error) {
-        if (!firstError) {
-          firstError = error;
-        }
-      }
-    }
-
-    throw firstError || new Error(TEXT.noMessages);
+  async function fetchMessages(accessToken) {
+    const payload = await fetchMessagesByEndpoint(accessToken, GRAPH_MESSAGES_ENDPOINT);
+    return {
+      endpoint: GRAPH_MESSAGES_ENDPOINT,
+      payload,
+    };
   }
 
   async function handleExpandMessage(rowElement, message, currentState) {
@@ -582,6 +598,8 @@ export function initOutlookModal() {
       return;
     }
 
+    clearSensitiveState();
+
     state.isLoading = true;
     loadMailBtn.disabled = true;
     loadMailBtn.textContent = TEXT.loading;
@@ -590,8 +608,10 @@ export function initOutlookModal() {
 
     try {
       state.accessToken = await getAccessToken(parsed.clientId || parsed.deviceId || "", parsed.refreshToken);
+      parsed.refreshToken = "";
+      scheduleSensitiveStateClear();
 
-      const { endpoint, payload } = await fetchMessagesWithFallback(state.accessToken);
+      const { endpoint, payload } = await fetchMessages(state.accessToken);
       state.messagesEndpoint = endpoint;
 
       const messages = normalizeMessages(payload?.value || []);
@@ -602,7 +622,6 @@ export function initOutlookModal() {
         return;
       }
 
-      state.detailCache.clear();
       clearList();
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < messages.length; i += 1) {
@@ -612,6 +631,7 @@ export function initOutlookModal() {
       mailList.appendChild(fragment);
       setStatus(`Đã tải ${messages.length} thư.`);
     } catch (error) {
+      clearSensitiveState();
       const message = normalizeUiError(error);
       setStatus("");
       setListNotice(message, true);
@@ -724,6 +744,13 @@ export function initOutlookModal() {
   loadMailBtn.addEventListener("click", () => {
     void loadMessages();
   });
+
+  const mailForm = payloadInput.closest("form");
+  if (mailForm) {
+    mailForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+    });
+  }
 
   syncHeaderOffset();
   window.addEventListener("resize", syncHeaderOffset);

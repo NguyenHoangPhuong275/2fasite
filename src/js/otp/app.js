@@ -2,6 +2,7 @@ import { createClockSync } from "./clock-sync.js";
 import { getOtpDom } from "./dom.js";
 import {
   OTP_COPY_HINT_TEXT,
+  OTP_CLOCK_SYNC_ERROR_TEXT,
   OTP_DEFAULT_PERIOD_SECONDS,
   OTP_EMPTY_CODE,
   OTP_INPUT_PLACEHOLDER_TEXT,
@@ -54,6 +55,16 @@ export function initOtpApp() {
       return;
     }
 
+    if (!clockSync.hasAuthoritativeTime()) {
+      currentCode = OTP_EMPTY_CODE;
+      lastStep = -1;
+      view.renderEmptyDigits();
+      view.setIdleView();
+      dom.copyHint.textContent = OTP_CLOCK_SYNC_ERROR_TEXT;
+      dom.copyHint.classList.add("visible");
+      return;
+    }
+
     const now = clockSync.getSyncedNow();
     const periodMs = (currentTotp.period || OTP_DEFAULT_PERIOD_SECONDS) * 1000;
     const elapsed = ((now % periodMs) + periodMs) % periodMs;
@@ -85,10 +96,16 @@ export function initOtpApp() {
       dom.copyHint.textContent = OTP_COPY_HINT_TEXT;
       currentTotp = parseInputToTotp(sanitized);
       lastStep = -1;
+      const syncOk = await clockSync.ensureFresh();
+
+      if (!syncOk || !clockSync.hasAuthoritativeTime()) {
+        resetOtpState();
+        dom.copyHint.textContent = OTP_CLOCK_SYNC_ERROR_TEXT;
+        dom.copyHint.classList.add("visible");
+        return;
+      }
+
       analyzeNow(true);
-      void clockSync.ensureFresh().then(() => {
-        analyzeNow(true);
-      });
     } catch (error) {
       resetOtpState();
       dom.copyHint.textContent = error instanceof Error && error.message
