@@ -1,12 +1,20 @@
-import { applyCors, consumeRateLimit, ensureTrustedBrowserRequest } from "./_security.js";
-const MS_TOKEN_URL = "https://login.microsoftonline.com/common/oauth2/v2.0/token";
-const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import {
+  applyCors,
+  consumeRateLimit,
+  ensureTrustedBrowserRequest,
+} from "./_security.js";
+const MS_TOKEN_URL =
+  "https://login.microsoftonline.com/common/oauth2/v2.0/token";
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const REFRESH_TOKEN_MAX_LENGTH = 5000;
-const DEFAULT_GRAPH_SCOPE = "https://graph.microsoft.com/Mail.Read offline_access openid profile";
+const DEFAULT_GRAPH_SCOPE =
+  "https://graph.microsoft.com/Mail.Read offline_access openid profile";
 
 function validateTokenRequest(body) {
   const { client_id, refresh_token, scope } = body || {};
-  const normalizedClientId = typeof client_id === "string" ? client_id.trim() : client_id;
+  const normalizedClientId =
+    typeof client_id === "string" ? client_id.trim() : client_id;
   const normalizedScope = typeof scope === "string" ? scope.trim() : "";
 
   if (typeof refresh_token !== "string" || !refresh_token.trim()) {
@@ -22,7 +30,10 @@ function validateTokenRequest(body) {
   }
 
   if (normalizedClientId !== undefined && normalizedClientId !== "") {
-    if (typeof normalizedClientId !== "string" || !UUID_PATTERN.test(normalizedClientId)) {
+    if (
+      typeof normalizedClientId !== "string" ||
+      !UUID_PATTERN.test(normalizedClientId)
+    ) {
       return "Invalid client_id format";
     }
   }
@@ -86,10 +97,15 @@ export default async function handler(req, res) {
     methods: ["POST", "OPTIONS"],
     headers: ["Content-Type"],
   });
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
 
   if (req.method === "OPTIONS") {
-    return originTrusted ? res.status(204).end() : res.status(403).json({ error: "Forbidden origin" });
+    return originTrusted
+      ? res.status(204).end()
+      : res.status(403).json({ error: "Forbidden origin" });
   }
 
   if (req.method !== "POST") {
@@ -116,19 +132,26 @@ export default async function handler(req, res) {
   }
 
   const { client_id, refresh_token, scope } = req.body || {};
-  const resolvedClientId = String(client_id || process.env.MS_CLIENT_ID || "").trim();
-  const resolvedScope = String(scope || process.env.MS_GRAPH_SCOPE || DEFAULT_GRAPH_SCOPE).trim();
+  const resolvedClientId = String(
+    client_id || process.env.MS_CLIENT_ID || "",
+  ).trim();
 
   if (!resolvedClientId) {
     return res.status(400).json({ error: "client_id is required" });
   }
 
-  const body = new URLSearchParams({
+  const requestParams = {
     client_id: resolvedClientId,
     refresh_token,
     grant_type: "refresh_token",
-    scope: resolvedScope,
-  });
+  };
+
+  const resolvedScope = String(scope || "").trim();
+  if (resolvedScope) {
+    requestParams.scope = resolvedScope;
+  }
+
+  const body = new URLSearchParams(requestParams);
 
   try {
     const response = await fetch(MS_TOKEN_URL, {
@@ -151,13 +174,23 @@ export default async function handler(req, res) {
     }
 
     const tokenPayload = decodeJwtPayload(data.access_token);
-    const tokenAudience = String(tokenPayload?.aud || "").trim().toLowerCase();
-    const isGraphAudience = tokenAudience === "https://graph.microsoft.com" || tokenAudience === "00000003-0000-0000-c000-000000000000";
+    const tokenAudience = String(tokenPayload?.aud || "")
+      .trim()
+      .toLowerCase();
+    const isGraphAudience =
+      tokenAudience === "https://graph.microsoft.com" ||
+      tokenAudience === "00000003-0000-0000-c000-000000000000";
+    const isOutlookAudience = tokenAudience === "https://outlook.office.com";
 
-    if (tokenPayload && (!isGraphAudience || !hasRequiredGraphMailScope(tokenPayload))) {
+    if (
+      tokenPayload &&
+      !isGraphAudience &&
+      !isOutlookAudience
+    ) {
       return res.status(403).json({
         error: "invalid_graph_access_token",
-        error_description: "The refresh token did not produce a Microsoft Graph Mail.Read access token for the configured client_id.",
+        error_description:
+          "The refresh token did not produce a Microsoft Mail access token for the configured client_id.",
       });
     }
 
@@ -165,6 +198,7 @@ export default async function handler(req, res) {
       access_token: String(data?.access_token || ""),
       expires_in: Number(data?.expires_in || 0),
       token_type: String(data?.token_type || "Bearer"),
+      scope: String(data?.scope || ""),
     });
   } catch {
     return res.status(502).json({ error: "Upstream service unavailable" });

@@ -1,6 +1,6 @@
 # 2fasite
 
-Ứng dụng web tạo mã TOTP (2FA) và đọc mail Outlook phục vụ lấy mã xác thực.
+Ứng dụng web tạo mã TOTP (2FA) và đọc mail Outlook để lấy mã xác thực.
 
 ## Cấu trúc chính
 
@@ -16,17 +16,19 @@
 
 - Hỗ trợ input `otpauth://...` hoặc secret Base32.
 - Tạo mã TOTP mặc định `SHA1`, `6 digits`, `30s` khi nhập Base32 thường.
-- Có countdown + progress bar và copy mã bằng Clipboard API.
+- Có countdown, progress bar và copy mã bằng Clipboard API.
 - Đồng bộ thời gian qua `/api/time`, fallback `timeapi.io`.
 
 ## Luồng Outlook
 
 - Nhập dữ liệu theo dạng ưu tiên:
   - `email|password|refresh_token|device_id`
-  - hoặc `email|refresh_token|device_id`
-  - hoặc `refresh_token|device_id`
+  - `email|refresh_token|device_id`
+  - `refresh_token|device_id`
+  - hoặc dạng gán nhãn: `refresh_token:... device_id:<uuid>`
+- App dùng giá trị `device_id` đó để gửi lên endpoint token dưới tham số `client_id`.
 - App gọi `/api/token` để lấy access token.
-- App đọc danh sách thư từ Outlook API, fallback sang Microsoft Graph API.
+- App đọc danh sách thư qua Microsoft Graph API.
 - Click từng dòng thư để mở chi tiết trong modal.
 
 ## Chạy local

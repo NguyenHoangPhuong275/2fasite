@@ -3,17 +3,21 @@ const GRAPH_MESSAGES_ENDPOINT = "https://graph.microsoft.com/v1.0/me/messages";
 const REQUEST_TIMEOUT_MS = 15000;
 const MESSAGE_LIMIT = 12;
 const ACCESS_TOKEN_TTL_MS = 5 * 60 * 1000;
-const GRAPH_SCOPE = "https://graph.microsoft.com/Mail.Read offline_access openid profile";
+const GRAPH_SCOPE =
+  "https://graph.microsoft.com/Mail.Read offline_access openid profile";
 
-const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
+const UUID_PATTERN =
+  /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const EMAIL_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const REFRESH_TOKEN_PATTERN = /M\.[^\s|]+/g;
 const TEXT = {
   timeout: "Yêu cầu hết thời gian chờ (15s). Thử lại sau.",
   endpoint405:
     "Endpoint /api/token đang trả về 405. Hãy chạy app bằng npx vercel dev (không mở file HTML trực tiếp, không dùng Live Server).",
-  aadsts: "AADSTS90023: App Entra chưa được cấu hình đúng cho luồng token hiện tại.",
-  network: "Không thể kết nối endpoint Microsoft. Kiểm tra mạng, VPN/firewall hoặc CORS.",
+  aadsts:
+    "AADSTS90023: App Entra chưa được cấu hình đúng cho luồng token hiện tại.",
+  network:
+    "Không thể kết nối endpoint Microsoft. Kiểm tra mạng, VPN/firewall hoặc CORS.",
   loadData: "Không thể tải dữ liệu.",
   senderUnknown: "Không rõ",
   subjectEmpty: "(Không tiêu đề)",
@@ -25,7 +29,10 @@ const TEXT = {
   copied: "Đã sao chép",
   noToken: "Thiếu access token.",
   loadToken: "Không thể lấy access token.",
-  missingClientId: "Missing Microsoft client_id. Add client_id:<uuid> to the pasted data or set MS_CLIENT_ID on the server.",
+  missingClientId:
+    "Missing Microsoft client_id. Add client_id:<uuid> to the pasted data or set MS_CLIENT_ID on the server.",
+  legacyDeviceOnly:
+    "Không tìm thấy Microsoft client_id hợp lệ trong dữ liệu đã dán.",
   noMessages: "Không thể tải danh sách thư.",
   loadingContent: "Đang tải nội dung thư...",
   loadedList: "Đã tải danh sách thư.",
@@ -63,11 +70,12 @@ async function requestJson(url, options = {}) {
     }
 
     if (!response.ok) {
-      const message = payload && typeof payload.error_description === "string"
-        ? payload.error_description
-        : payload && typeof payload.error === "string"
-          ? payload.error
-          : `HTTP ${response.status}`;
+      const message =
+        payload && typeof payload.error_description === "string"
+          ? payload.error_description
+          : payload && typeof payload.error === "string"
+            ? payload.error
+            : `HTTP ${response.status}`;
       throw new Error(message);
     }
 
@@ -78,7 +86,12 @@ async function requestJson(url, options = {}) {
 }
 
 function normalizeUiError(error) {
-  if (error && typeof error === "object" && "name" in error && error.name === "AbortError") {
+  if (
+    error &&
+    typeof error === "object" &&
+    "name" in error &&
+    error.name === "AbortError"
+  ) {
     return TEXT.timeout;
   }
 
@@ -91,15 +104,24 @@ function normalizeUiError(error) {
     return TEXT.endpoint405;
   }
 
-  if (/AADSTS90023/i.test(message) || /Cross-origin token redemption/i.test(message)) {
+  if (
+    /AADSTS90023/i.test(message) ||
+    /Cross-origin token redemption/i.test(message)
+  ) {
     return TEXT.aadsts;
   }
 
-  if (/client_id is required/i.test(message) || /Invalid client_id format/i.test(message)) {
+  if (
+    /client_id is required/i.test(message) ||
+    /Invalid client_id format/i.test(message)
+  ) {
     return TEXT.missingClientId;
   }
 
-  if (/invalid_graph_access_token/i.test(message) || /did not produce a Microsoft Graph Mail\.Read access token/i.test(message)) {
+  if (
+    /invalid_graph_access_token/i.test(message) ||
+    /did not produce a Microsoft Graph Mail\.Read access token/i.test(message)
+  ) {
     return "The provided refresh token is valid, but it does not issue a Microsoft Graph Mail.Read token for this client_id.";
   }
 
@@ -128,7 +150,9 @@ function uniqueIgnoreCase(values) {
 }
 
 function isUuid(value) {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+    value,
+  );
 }
 
 function isEmail(value) {
@@ -145,24 +169,38 @@ function parsePastedCredentialPayload(rawValue) {
   const segments = compact
     .split("|")
     .map((part) => part.trim())
-    .filter(Boolean);
+    .filter((part) => part && part.toLowerCase() !== "none");
 
   let email = "";
   let refreshToken = "";
   let deviceId = "";
   let clientId = "";
 
-  if (segments.length >= 4 && isEmail(segments[0]) && isRefreshToken(segments[2]) && isUuid(segments[3])) {
+  if (
+    segments.length >= 4 &&
+    isEmail(segments[0]) &&
+    isRefreshToken(segments[2]) &&
+    isUuid(segments[3])
+  ) {
     email = segments[0];
     refreshToken = segments[2];
-    deviceId = segments[3];
-  } else if (segments.length >= 3 && isEmail(segments[0]) && isRefreshToken(segments[1]) && isUuid(segments[2])) {
+    clientId = segments[3];
+  } else if (
+    segments.length >= 3 &&
+    isEmail(segments[0]) &&
+    isRefreshToken(segments[1]) &&
+    isUuid(segments[2])
+  ) {
     email = segments[0];
     refreshToken = segments[1];
-    deviceId = segments[2];
-  } else if (segments.length >= 2 && isRefreshToken(segments[0]) && isUuid(segments[1])) {
+    clientId = segments[2];
+  } else if (
+    segments.length >= 2 &&
+    isRefreshToken(segments[0]) &&
+    isUuid(segments[1])
+  ) {
     refreshToken = segments[0];
-    deviceId = segments[1];
+    clientId = segments[1];
   }
 
   if (!email) {
@@ -175,23 +213,38 @@ function parsePastedCredentialPayload(rawValue) {
     refreshToken = tokenMatches[0] || "";
   }
 
-  const labeledDeviceMatch = raw.match(/(?:device[_\s-]*id)\s*[:=]\s*([0-9a-fA-F-]{36})/i);
-  if (!deviceId && labeledDeviceMatch && isUuid(labeledDeviceMatch[1])) {
-    deviceId = labeledDeviceMatch[1];
-  }
-
-  const labeledClientMatch = raw.match(/(?:client[_\s-]*id|app[_\s-]*id|application[_\s-]*id)\s*[:=]\s*([0-9a-fA-F-]{36})/i);
+  const labeledClientMatch = raw.match(
+    /(?:client[_\s-]*id|app[_\s-]*id|application[_\s-]*id)\s*[:=]\s*([0-9a-fA-F-]{36})/i,
+  );
   if (labeledClientMatch && isUuid(labeledClientMatch[1])) {
     clientId = labeledClientMatch[1];
   }
 
+  const labeledDeviceMatch = raw.match(
+    /(?:device[_\s-]*id)\s*[:=]\s*([0-9a-fA-F-]{36})/i,
+  );
+  if (!deviceId && labeledDeviceMatch && isUuid(labeledDeviceMatch[1])) {
+    deviceId = labeledDeviceMatch[1];
+  }
+
+  if (!clientId && deviceId) {
+    clientId = deviceId;
+  }
+
   const uuidMatches = uniqueIgnoreCase(raw.match(UUID_PATTERN) || []);
-  if (!deviceId && uuidMatches.length) {
+  if (!clientId && uuidMatches.length) {
+    clientId = uuidMatches[0];
+  }
+
+  if (!deviceId && uuidMatches.length > 1) {
     deviceId = uuidMatches[uuidMatches.length - 1];
   }
 
-  if (!clientId && uuidMatches.length > 1) {
-    clientId = uuidMatches.find((value) => value.toLowerCase() !== deviceId.toLowerCase()) || "";
+  if (!clientId && deviceId && uuidMatches.length > 1) {
+    clientId =
+      uuidMatches.find(
+        (value) => value.toLowerCase() !== deviceId.toLowerCase(),
+      ) || "";
   }
 
   return {
@@ -216,18 +269,25 @@ function normalizeMessages(messages) {
     return [];
   }
 
-  return messages.slice(0, MESSAGE_LIMIT).map((message) => {
-    const sender = normalizeSender(message || {});
+  return messages
+    .slice(0, MESSAGE_LIMIT)
+    .map((message) => {
+      const sender = normalizeSender(message || {});
 
-    return {
-      id: String(message?.Id || message?.id || ""),
-      subject: String(message?.Subject || message?.subject || TEXT.subjectEmpty),
-      receivedAt: String(message?.ReceivedDateTime || message?.receivedDateTime || ""),
-      preview: String(message?.BodyPreview || message?.bodyPreview || ""),
-      senderName: sender.name,
-      senderAddress: sender.address,
-    };
-  }).filter((message) => message.id);
+      return {
+        id: String(message?.Id || message?.id || ""),
+        subject: String(
+          message?.Subject || message?.subject || TEXT.subjectEmpty,
+        ),
+        receivedAt: String(
+          message?.ReceivedDateTime || message?.receivedDateTime || "",
+        ),
+        preview: String(message?.BodyPreview || message?.bodyPreview || ""),
+        senderName: sender.name,
+        senderAddress: sender.address,
+      };
+    })
+    .filter((message) => message.id);
 }
 
 function buildMessagesUrl(endpoint) {
@@ -251,7 +311,11 @@ function formatDate(value) {
 }
 
 function getSenderLine(message) {
-  if (message.senderName && message.senderAddress && message.senderName !== message.senderAddress) {
+  if (
+    message.senderName &&
+    message.senderAddress &&
+    message.senderName !== message.senderAddress
+  ) {
     return `${message.senderName} <${message.senderAddress}>`;
   }
 
@@ -292,7 +356,9 @@ function toPlainText(rawContent) {
 
 function renderMessageIntoFrame(iframe, subject, rawContent) {
   const safeSubject = escapeHtml(subject || TEXT.detailDefaultTitle);
-  const safeContent = escapeHtml(toPlainText(rawContent) || TEXT.detailEmptyBody);
+  const safeContent = escapeHtml(
+    toPlainText(rawContent) || TEXT.detailEmptyBody,
+  );
   iframe.srcdoc = `<!doctype html><html><head><meta charset="UTF-8"><title>${safeSubject}</title><style>body{font-family:Manrope,Segoe UI,system-ui,sans-serif;padding:16px;line-height:1.6;color:#111}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${safeContent}</pre></body></html>`;
 }
 
@@ -367,8 +433,7 @@ function buildMessageItem(message, index, email, state, onExpand) {
           codeDiv.textContent = code;
           codeDiv.classList.remove("copied");
         }, 1400);
-      } catch {
-      }
+      } catch {}
     });
 
     item.appendChild(codeDiv);
@@ -414,13 +479,16 @@ export function initOutlookModal() {
         throw new Error(TEXT.noToken);
       }
 
-      const detail = await requestJson(`${state.messagesEndpoint}/${encodeURIComponent(messageId)}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${state.accessToken}`,
-          Accept: "application/json",
+      const detail = await requestJson(
+        `${state.messagesEndpoint}/${encodeURIComponent(messageId)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${state.accessToken}`,
+            Accept: "application/json",
+          },
         },
-      });
+      );
 
       if (typeof detail?.Body?.Content === "string") {
         return detail.Body.Content;
@@ -435,14 +503,20 @@ export function initOutlookModal() {
   };
 
   const syncHeaderOffset = () => {
-    document.documentElement.style.setProperty("--viewport-height", `${window.innerHeight}px`);
+    document.documentElement.style.setProperty(
+      "--viewport-height",
+      `${window.innerHeight}px`,
+    );
 
     if (!siteHeader) {
       return;
     }
 
     const headerHeight = Math.ceil(siteHeader.getBoundingClientRect().height);
-    document.documentElement.style.setProperty("--header-offset", `${headerHeight}px`);
+    document.documentElement.style.setProperty(
+      "--header-offset",
+      `${headerHeight}px`,
+    );
   };
 
   const setFullViewMode = (enabled) => {
@@ -537,7 +611,6 @@ export function initOutlookModal() {
     const requestBody = {
       refresh_token: refreshToken,
       client_id: clientId,
-      scope: GRAPH_SCOPE,
     };
 
     const payload = await requestJson(TOKEN_ENDPOINT, {
@@ -548,12 +621,18 @@ export function initOutlookModal() {
       body: JSON.stringify(requestBody),
     });
 
-    const accessToken = typeof payload?.access_token === "string" ? payload.access_token.trim() : "";
+    const accessToken =
+      typeof payload?.access_token === "string"
+        ? payload.access_token.trim()
+        : "";
     if (!accessToken) {
       throw new Error(TEXT.loadToken);
     }
 
-    return accessToken;
+    return {
+      accessToken,
+      scope: typeof payload?.scope === "string" ? payload.scope : "",
+    };
   }
 
   async function fetchMessagesByEndpoint(accessToken, endpoint) {
@@ -566,17 +645,22 @@ export function initOutlookModal() {
     });
   }
 
-  async function fetchMessages(accessToken) {
-    const payload = await fetchMessagesByEndpoint(accessToken, GRAPH_MESSAGES_ENDPOINT);
+  async function fetchMessages(accessToken, targetEndpoint) {
+    const payload = await fetchMessagesByEndpoint(
+      accessToken,
+      targetEndpoint,
+    );
     return {
-      endpoint: GRAPH_MESSAGES_ENDPOINT,
+      endpoint: targetEndpoint,
       payload,
     };
   }
 
   async function handleExpandMessage(rowElement, message, currentState) {
     try {
-      for (const node of mailList.querySelectorAll(".outlook-list-item.selected")) {
+      for (const node of mailList.querySelectorAll(
+        ".outlook-list-item.selected",
+      )) {
         node.classList.remove("selected");
       }
       rowElement.classList.add("selected");
@@ -610,6 +694,15 @@ export function initOutlookModal() {
       return;
     }
 
+    if (!parsed.clientId) {
+      const message = parsed.deviceId
+        ? TEXT.legacyDeviceOnly
+        : TEXT.missingClientId;
+      setStatus("");
+      setListNotice(message, true);
+      return;
+    }
+
     clearSensitiveState();
 
     state.isLoading = true;
@@ -619,11 +712,21 @@ export function initOutlookModal() {
     setStatus("");
 
     try {
-      state.accessToken = await getAccessToken(parsed.clientId || parsed.deviceId || "", parsed.refreshToken);
+      const tokenData = await getAccessToken(
+        parsed.clientId,
+        parsed.refreshToken,
+      );
+      state.accessToken = tokenData.accessToken;
       parsed.refreshToken = "";
       scheduleSensitiveStateClear();
 
-      const { endpoint, payload } = await fetchMessages(state.accessToken);
+      const scopeLower = tokenData.scope.toLowerCase();
+      let fetchEndpoint = GRAPH_MESSAGES_ENDPOINT;
+      if (scopeLower.includes("outlook.office.com")) {
+        fetchEndpoint = "https://outlook.office.com/api/v2.0/me/messages";
+      }
+
+      const { endpoint, payload } = await fetchMessages(state.accessToken, fetchEndpoint);
       state.messagesEndpoint = endpoint;
 
       const messages = normalizeMessages(payload?.value || []);
@@ -637,7 +740,15 @@ export function initOutlookModal() {
       clearList();
       const fragment = document.createDocumentFragment();
       for (let i = 0; i < messages.length; i += 1) {
-        fragment.appendChild(buildMessageItem(messages[i], i + 1, parsed.email, state, handleExpandMessage));
+        fragment.appendChild(
+          buildMessageItem(
+            messages[i],
+            i + 1,
+            parsed.email,
+            state,
+            handleExpandMessage,
+          ),
+        );
       }
 
       mailList.appendChild(fragment);
@@ -656,10 +767,20 @@ export function initOutlookModal() {
 
   let setActiveView = null;
 
-  if (nav2faBtn && mailBtn && pricingBtn && view2fa && viewOutlook && viewPricing) {
+  if (
+    nav2faBtn &&
+    mailBtn &&
+    pricingBtn &&
+    view2fa &&
+    viewOutlook &&
+    viewPricing
+  ) {
     setActiveView = (nextView) => {
       setFullViewMode(nextView === "outlook");
-      document.body.classList.toggle("pricing-view-mode", nextView === "pricing");
+      document.body.classList.toggle(
+        "pricing-view-mode",
+        nextView === "pricing",
+      );
       document.body.classList.toggle("twofa-view-mode", nextView === "2fa");
       if (nextView === "pricing") {
         syncHeaderOffset();
