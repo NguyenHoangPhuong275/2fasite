@@ -3,6 +3,7 @@ const GRAPH_MESSAGES_ENDPOINT = "https://graph.microsoft.com/v1.0/me/messages";
 const REQUEST_TIMEOUT_MS = 15000;
 const MESSAGE_LIMIT = 12;
 const ACCESS_TOKEN_TTL_MS = 5 * 60 * 1000;
+const GRAPH_SCOPE = "https://graph.microsoft.com/Mail.Read offline_access openid profile";
 
 const UUID_PATTERN = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const EMAIL_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
@@ -24,6 +25,7 @@ const TEXT = {
   copied: "Đã sao chép",
   noToken: "Thiếu access token.",
   loadToken: "Không thể lấy access token.",
+  missingClientId: "Missing Microsoft client_id. Add client_id:<uuid> to the pasted data or set MS_CLIENT_ID on the server.",
   noMessages: "Không thể tải danh sách thư.",
   loadingContent: "Đang tải nội dung thư...",
   loadedList: "Đã tải danh sách thư.",
@@ -91,6 +93,14 @@ function normalizeUiError(error) {
 
   if (/AADSTS90023/i.test(message) || /Cross-origin token redemption/i.test(message)) {
     return TEXT.aadsts;
+  }
+
+  if (/client_id is required/i.test(message) || /Invalid client_id format/i.test(message)) {
+    return TEXT.missingClientId;
+  }
+
+  if (/invalid_graph_access_token/i.test(message) || /did not produce a Microsoft Graph Mail\.Read access token/i.test(message)) {
+    return "The provided refresh token is valid, but it does not issue a Microsoft Graph Mail.Read token for this client_id.";
   }
 
   if (message === "Failed to fetch" || message.includes("NetworkError")) {
@@ -520,13 +530,15 @@ export function initOutlookModal() {
   }
 
   async function getAccessToken(clientId, refreshToken) {
+    if (!clientId) {
+      throw new Error(TEXT.missingClientId);
+    }
+
     const requestBody = {
       refresh_token: refreshToken,
+      client_id: clientId,
+      scope: GRAPH_SCOPE,
     };
-
-    if (clientId) {
-      requestBody.client_id = clientId;
-    }
 
     const payload = await requestJson(TOKEN_ENDPOINT, {
       method: "POST",
