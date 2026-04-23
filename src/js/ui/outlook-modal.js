@@ -10,6 +10,16 @@ const UUID_PATTERN =
   /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gi;
 const EMAIL_PATTERN = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g;
 const REFRESH_TOKEN_PATTERN = /M\.[^\s|]+/g;
+const VERIFICATION_CONTEXT_PATTERN =
+  /\b(otp|passcode|verification|verify|verification code|security code|login code|auth(?:entication)?|one[-\s]*time|2fa|two[-\s]*factor|confirm(?:ation)? code|m[aã]\s*x[aá]c\s*minh|m[aã]|x[aá]c\s*minh)\b/i;
+const CODE_HINT_PATTERN =
+  /\b(otp|passcode|verification code|security code|login code|confirm(?:ation)? code|use code|enter (?:this )?code|code is|m[aã]\s*x[aá]c\s*minh|m[aã]\s+l[aà]\s+([A-Z0-9-]{4,10}))\b/i;
+const LABELED_CODE_PATTERNS = [
+  /\b(?:otp|passcode|verification code|security code|login code|confirm(?:ation)? code|m[aã]\s*x[aá]c\s*minh)\b[\s:>#-]{0,12}([A-Z0-9]{4,10}(?:-[A-Z0-9]{2,6})?)\b/i,
+  /\bcode\s*(?:is|:|#|-)?\s*([A-Z0-9]{4,10}(?:-[A-Z0-9]{2,6})?)\b/i,
+];
+const DANGEROUS_HTML_SELECTOR =
+  "script, iframe, object, embed, form, input, button, textarea, select, meta[http-equiv='refresh']";
 const TEXT = {
   timeout: "Yêu cầu hết thời gian chờ (15s). Thử lại sau.",
   endpoint405:
@@ -322,11 +332,46 @@ function getSenderLine(message) {
   return message.senderAddress || message.senderName || TEXT.senderUnknown;
 }
 
-function extractOtpCode(message) {
-  const combinedText = `${message.subject} ${message.preview}`;
+function normalizeWhitespace(text) {
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+
+function getMessageContextText(message) {
+  return normalizeWhitespace(`${message?.subject || ""} ${message?.preview || ""}`);
+}
+
+function isLikelyOtpToken(value) {
+  const token = String(value || "").trim();
+  if (!token) {
+    return false;
+  }
+
+  if (!/^[A-Z0-9-]{4,12}$/i.test(token)) {
+    return false;
+  }
+
+  return /\d/.test(token);
+}
+
+function extractOtpCodeFromText(text) {
+  const combinedText = normalizeWhitespace(text);
+  if (!combinedText || !VERIFICATION_CONTEXT_PATTERN.test(combinedText)) {
+    return "";
+  }
+
+  for (const pattern of LABELED_CODE_PATTERNS) {
+    const labeled = combinedText.match(pattern);
+    if (labeled?.[1] && isLikelyOtpToken(labeled[1])) {
+      return labeled[1];
+    }
+  }
+
+  if (!CODE_HINT_PATTERN.test(combinedText)) {
+    return "";
+  }
 
   const dashed = combinedText.match(/\b[A-Z0-9]{2,4}-[A-Z0-9]{2,6}\b/);
-  if (dashed) {
+  if (dashed && isLikelyOtpToken(dashed[0])) {
     return dashed[0];
   }
 
@@ -336,6 +381,21 @@ function extractOtpCode(message) {
   }
 
   return "";
+}
+
+function extractOtpCode(message) {
+  return extractOtpCodeFromText(getMessageContextText(message));
+}
+
+function extractOtpCodeFromDetail(message, detail) {
+  const detailText =
+    detail?.contentType === "html"
+      ? toPlainText(detail?.content || "")
+      : normalizeWhitespace(detail?.content || "");
+
+  return extractOtpCodeFromText(
+    `${message?.subject || ""} ${message?.preview || ""} ${detailText}`,
+  );
 }
 
 function escapeHtml(text) {
@@ -354,12 +414,150 @@ function toPlainText(rawContent) {
   return text.replace(/\u00a0/g, " ").trim();
 }
 
-function renderMessageIntoFrame(iframe, subject, rawContent) {
-  const safeSubject = escapeHtml(subject || TEXT.detailDefaultTitle);
-  const safeContent = escapeHtml(
-    toPlainText(rawContent) || TEXT.detailEmptyBody,
+function normalizeDetailPayload(detail) {
+  const body = detail?.Body || detail?.body || {};
+  const rawContent =
+    typeof body?.Content === "string"
+      ? body.Content
+      : typeof body?.content === "string"
+        ? body.content
+        : "";
+  const rawContentType =
+    typeof body?.ContentType === "string"
+      ? body.ContentType
+      : typeof body?.contentType === "string"
+        ? body.contentType
+        : "";
+
+  return {
+    content: rawContent,
+    contentType: rawContentType.toLowerCase() === "html" ? "html" : "text",
+  };
+}
+
+function sanitizeEmailHtml(rawContent) {
+  const parsed = new DOMParser().parseFromString(
+    String(rawContent || ""),
+    "text/html",
   );
+
+  parsed.querySelectorAll(DANGEROUS_HTML_SELECTOR).forEach((node) => {
+    node.remove();
+  });
+
+  parsed.querySelectorAll("*").forEach((node) => {
+    for (const attribute of [...node.attributes]) {
+      const name = attribute.name.toLowerCase();
+      const value = attribute.value.trim();
+
+      if (name.startsWith("on")) {
+        node.removeAttribute(attribute.name);
+        continue;
+      }
+
+      if (
+        (name === "href" || name === "src" || name === "action") &&
+        /^\s*javascript:/i.test(value)
+      ) {
+        node.removeAttribute(attribute.name);
+      }
+    }
+  });
+
+  const bodyMarkup = parsed.body?.innerHTML?.trim();
+  if (!bodyMarkup) {
+    return "";
+  }
+
+  return `<!doctype html><html><head><meta charset="UTF-8"><base target="_blank"><style>html,body{margin:0;padding:0;background:#fff;color:#111}body{padding:16px;font-family:Manrope,Segoe UI,system-ui,sans-serif;line-height:1.6;word-break:break-word}img{max-width:100%;height:auto}table{max-width:100%}pre{white-space:pre-wrap;word-break:break-word}</style>${parsed.head?.innerHTML || ""}</head><body>${bodyMarkup}</body></html>`;
+}
+
+function renderMessageIntoFrame(iframe, subject, detail) {
+  const safeSubject = escapeHtml(subject || TEXT.detailDefaultTitle);
+  const rawContent = detail?.content || "";
+  const contentType = detail?.contentType || "text";
+
+  if (contentType === "html") {
+    const safeHtml = sanitizeEmailHtml(rawContent);
+    if (safeHtml) {
+      iframe.srcdoc = safeHtml.replace(
+        "<head>",
+        `<head><title>${safeSubject}</title>`,
+      );
+      return;
+    }
+  }
+
+  const safeContent = escapeHtml(toPlainText(rawContent) || TEXT.detailEmptyBody);
   iframe.srcdoc = `<!doctype html><html><head><meta charset="UTF-8"><title>${safeSubject}</title><style>body{font-family:Manrope,Segoe UI,system-ui,sans-serif;padding:16px;line-height:1.6;color:#111}pre{white-space:pre-wrap;word-break:break-word}</style></head><body><pre>${safeContent}</pre></body></html>`;
+}
+
+function getPreviewSnippet(message) {
+  return normalizeWhitespace(message?.preview || "");
+}
+
+function applyMessageCodeState(rowElement, message) {
+  const code = String(message?.otpCode || "").trim();
+  const iconDiv = rowElement.querySelector(".outlook-item-icon");
+  const badgeSpan = rowElement.querySelector(".outlook-item-badge");
+  let codeDiv = rowElement.querySelector(".outlook-item-code");
+
+  if (iconDiv) {
+    const lowerSubject = String(message?.subject || "").toLowerCase();
+    const lowerSender = String(message?.senderName || "").toLowerCase();
+
+    if (code) {
+      iconDiv.textContent = "OTP";
+    } else if (lowerSubject.includes("gpt") || lowerSender.includes("gpt")) {
+      iconDiv.textContent = "AI";
+    } else if (lowerSubject.includes("premium") || lowerSender.includes("pro")) {
+      iconDiv.textContent = "PRO";
+    } else {
+      iconDiv.textContent = "MAIL";
+    }
+  }
+
+  if (badgeSpan) {
+    badgeSpan.textContent = code || String(message?.listIndex || "");
+    if (code) {
+      badgeSpan.style.background = "";
+      badgeSpan.style.color = "";
+    } else {
+      badgeSpan.style.background = "rgba(100, 116, 139, 0.2)";
+      badgeSpan.style.color = "var(--slate-400)";
+    }
+  }
+
+  if (code) {
+    if (!codeDiv) {
+      codeDiv = document.createElement("div");
+      codeDiv.className = "outlook-item-code";
+      codeDiv.title = TEXT.copyTitle;
+      codeDiv.addEventListener("click", async (event) => {
+        event.stopPropagation();
+        const currentCode = String(message?.otpCode || "").trim();
+        if (!currentCode) {
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(currentCode);
+          codeDiv.textContent = TEXT.copied;
+          codeDiv.classList.add("copied");
+
+          setTimeout(() => {
+            codeDiv.textContent = String(message?.otpCode || "").trim();
+            codeDiv.classList.remove("copied");
+          }, 1400);
+        } catch {}
+      });
+      rowElement.appendChild(codeDiv);
+    }
+
+    codeDiv.textContent = code;
+  } else if (codeDiv) {
+    codeDiv.remove();
+  }
 }
 
 function buildMessageItem(message, index, email, state, onExpand) {
@@ -367,22 +565,11 @@ function buildMessageItem(message, index, email, state, onExpand) {
   item.className = "outlook-list-item";
   item.addEventListener("click", () => onExpand(item, message, state));
 
-  const code = extractOtpCode(message);
+  message.listIndex = index;
+  message.otpCode = extractOtpCode(message);
 
   const iconDiv = document.createElement("div");
   iconDiv.className = "outlook-item-icon";
-
-  const lowerSubject = message.subject.toLowerCase();
-  const lowerSender = message.senderName.toLowerCase();
-  if (code) {
-    iconDiv.textContent = "OTP";
-  } else if (lowerSubject.includes("gpt") || lowerSender.includes("gpt")) {
-    iconDiv.textContent = "AI";
-  } else if (lowerSubject.includes("premium") || lowerSender.includes("pro")) {
-    iconDiv.textContent = "PRO";
-  } else {
-    iconDiv.textContent = "MAIL";
-  }
 
   const contentDiv = document.createElement("div");
   contentDiv.className = "outlook-item-content";
@@ -396,11 +583,6 @@ function buildMessageItem(message, index, email, state, onExpand) {
 
   const badgeSpan = document.createElement("span");
   badgeSpan.className = "outlook-item-badge";
-  badgeSpan.textContent = code || String(index);
-  if (!code) {
-    badgeSpan.style.background = "rgba(100, 116, 139, 0.2)";
-    badgeSpan.style.color = "var(--slate-400)";
-  }
 
   titleRow.append(titleSpan, badgeSpan);
 
@@ -408,36 +590,19 @@ function buildMessageItem(message, index, email, state, onExpand) {
   subtitleDiv.className = "outlook-item-subtitle";
   subtitleDiv.textContent = `${getSenderLine(message)} - ${email || TEXT.emailUnknown}`;
 
-  contentDiv.append(titleRow, subtitleDiv);
+  const previewText = getPreviewSnippet(message);
+  const previewDiv = document.createElement("div");
+  previewDiv.className = "outlook-item-preview";
+  previewDiv.textContent = previewText || message.subject;
+
+  contentDiv.append(titleRow, subtitleDiv, previewDiv);
 
   const timeDiv = document.createElement("div");
   timeDiv.className = "outlook-item-time";
   timeDiv.textContent = formatDate(message.receivedAt);
 
   item.append(iconDiv, contentDiv, timeDiv);
-
-  if (code) {
-    const codeDiv = document.createElement("div");
-    codeDiv.className = "outlook-item-code";
-    codeDiv.textContent = code;
-    codeDiv.title = TEXT.copyTitle;
-
-    codeDiv.addEventListener("click", async (event) => {
-      event.stopPropagation();
-      try {
-        await navigator.clipboard.writeText(code);
-        codeDiv.textContent = TEXT.copied;
-        codeDiv.classList.add("copied");
-
-        setTimeout(() => {
-          codeDiv.textContent = code;
-          codeDiv.classList.remove("copied");
-        }, 1400);
-      } catch {}
-    });
-
-    item.appendChild(codeDiv);
-  }
+  applyMessageCodeState(item, message);
 
   return item;
 }
@@ -489,16 +654,7 @@ export function initOutlookModal() {
           },
         },
       );
-
-      if (typeof detail?.Body?.Content === "string") {
-        return detail.Body.Content;
-      }
-
-      if (typeof detail?.body?.content === "string") {
-        return detail.body.content;
-      }
-
-      return "";
+      return normalizeDetailPayload(detail);
     },
   };
 
@@ -672,6 +828,14 @@ export function initOutlookModal() {
         setStatus(TEXT.loadingContent);
         detailContent = await currentState.loadDetail(message.id);
         currentState.detailCache.set(message.id, detailContent);
+      }
+
+      if (!message.otpCode) {
+        const detailCode = extractOtpCodeFromDetail(message, detailContent);
+        if (detailCode) {
+          message.otpCode = detailCode;
+          applyMessageCodeState(rowElement, message);
+        }
       }
 
       openDetailModal(message, detailContent);

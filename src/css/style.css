@@ -1174,6 +1174,18 @@ body {
   text-overflow: ellipsis;
 }
 
+.outlook-item-preview {
+  margin-top: 4px;
+  color: var(--text-main);
+  font-size: 0.79rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0.92;
+}
+
 .outlook-item-time {
   margin-left: auto;
   color: var(--text-soft);
