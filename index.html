@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Tạo mã xác thực 2FA." />
+  <meta name="theme-color" content="#120d0e" />
+  <title>DOVIE 2FA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap&subset=vietnamese" rel="stylesheet" />
+  <link rel="stylesheet" href="./src/css/style.css" />
+  <link rel="icon" type="image/png" href="./assets/images/favicon.png" />
+  <script defer src="https://cdn.jsdelivr.net/npm/otpauth@9.5.0/dist/otpauth.umd.min.js" integrity="sha384-rFUkwG+rUMD/wEADnQl6+bR2/HK5vGb/z3mhxlm0RiZn8Pu87oE3boiM62B/5Fv7" crossorigin="anonymous"></script>
+  <script type="module" src="./src/js/script.js"></script>
+</head>
+<body>
+  <main class="workspace">
+    <section id="otpTool" class="otp-card" aria-labelledby="appTitle">
+      <header class="brand-row">
+        <div class="brand">
+          <img src="./assets/images/logo.png" alt="" />
+          <h1 id="appTitle">DOVIE <span>2FA</span></h1>
+        </div>
+        <div id="countdownBox" class="countdown-box is-hidden" aria-live="polite">
+          <span class="countdown-icon" aria-hidden="true"></span>
+          <span id="ringText" class="ring-text">--</span>
+        </div>
+      </header>
+
+      <div class="input-row">
+        <label class="sr-only" for="rawInput">Khóa bảo mật</label>
+        <input id="rawInput" class="secret-input" type="text" placeholder="Dán khóa bảo mật" autocomplete="off" autocapitalize="characters" spellcheck="false" />
+        <button id="submitBtn" class="submit-btn" type="button">
+          <span>Lấy mã</span>
+          <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5" /></svg>
+        </button>
+      </div>
+
+      <div id="otpSection" class="otp-section">
+        <button id="otpContainer" class="otp-container" type="button" title="Bấm để sao chép" aria-label="Sao chép mã OTP">
+          <span id="otpDigits" class="otp-digits" aria-live="polite">
+            <span class="otp-digit">-</span><span class="otp-digit">-</span><span class="otp-digit">-</span>
+            <span class="otp-digit-sep" aria-hidden="true"></span>
+            <span class="otp-digit">-</span><span class="otp-digit">-</span><span class="otp-digit">-</span>
+          </span>
+        </button>
+        <p id="copyHint" class="copy-hint">Bấm vào mã để sao chép</p>
+      </div>
+
+      <div class="progress-track" aria-hidden="true">
+        <div id="progressBar" class="progress-fill"></div>
+      </div>
+
+      <div id="copyToast" class="copy-toast" role="status" aria-live="polite" aria-atomic="true">
+        <div class="copy-toast-dialog">
+          <span class="copy-toast-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <circle class="copy-toast-ring-track" cx="12" cy="12" r="9" />
+              <circle class="copy-toast-ring-progress" cx="12" cy="12" r="9" />
+              <path class="copy-toast-check" d="m8 12 2.6 2.6L16 9" />
+            </svg>
+          </span>
+          <strong>Đã sao chép</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
