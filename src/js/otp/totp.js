@@ -394,6 +394,7 @@ export function parseInputToTotp(raw) {
 
   const rawCandidates = collectRawSecretCandidates(raw);
   const seen = new Set();
+  const normalizedCandidates = [];
 
   for (const baseCandidate of rawCandidates) {
     ensureNotAmbiguousCandidate(baseCandidate);
@@ -408,18 +409,24 @@ export function parseInputToTotp(raw) {
         continue;
       }
       seen.add(option);
-      if (!isValidBase32(option)) {
-        continue;
-      }
-      try {
-        return new FallbackTotp({
-          secretBytes: decodeBase32(option),
-          digits: 6,
-          period: 30,
-          algorithm: "SHA1",
-        });
-      } catch {
-      }
+      normalizedCandidates.push(option);
+    }
+  }
+
+  normalizedCandidates.sort((a, b) => b.length - a.length);
+
+  for (const candidate of normalizedCandidates) {
+    if (!isValidBase32(candidate)) {
+      continue;
+    }
+    try {
+      return new FallbackTotp({
+        secretBytes: decodeBase32(candidate),
+        digits: 6,
+        period: 30,
+        algorithm: "SHA1",
+      });
+    } catch {
     }
   }
 
